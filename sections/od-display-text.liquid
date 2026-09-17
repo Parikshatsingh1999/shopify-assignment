@@ -1,0 +1,189 @@
+{% comment %}
+  od-display-text
+  Test 1 · Display text — media showing through the letterforms.
+
+  The text stays real text: selectable, translatable, searchable, and part of the
+  document outline. No image of text, no SVG outlined glyphs.
+
+  Two fill modes, because one technique does not cover both media types:
+
+  · Image  — background-clip: text. The image is painted as the heading's own
+             background and clipped to the glyphs.
+  · Video  — a knockout overlay. The video sits behind a solid panel whose text
+             is blended with mix-blend-mode, so the video reads through the
+             letters while the surround stays opaque. (background-clip: text
+             cannot take a <video> as a background.)
+
+  Fallback: the text is styled visible first and only made transparent inside an
+  @supports block, so on a browser without the technique the shopper sees solid
+  coloured text rather than nothing at all.
+{% endcomment %}
+
+{{ 'od-base.css' | asset_url | stylesheet_tag }}
+{{ 'od-display-text.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign s = section.settings
+
+  assign fill_mode = 'image'
+  if s.fill_video != blank
+    assign fill_mode = 'video'
+  endif
+
+  assign heading_tag = s.heading_tag | default: 'h2'
+
+  # On the dark surround the knockout needs light text and multiply;
+  # on the light surround it needs dark text and screen. Getting this pair
+  # wrong inverts the effect, so it is derived here rather than left to CSS.
+  if s.surround_style == 'light'
+    assign knockout_blend = 'screen'
+    assign knockout_ink = '#000000'
+  else
+    assign knockout_blend = 'multiply'
+    assign knockout_ink = '#ffffff'
+  endif
+-%}
+
+<section
+  class="od-section od-display od-display--{{ fill_mode }} od-display--{{ s.surround_style }}"
+  style="
+    --od-display-surround: {{ s.surround_color }};
+    --od-display-ink: {{ knockout_ink }};
+    --od-display-blend: {{ knockout_blend }};
+    --od-display-fallback-ink: {{ s.fallback_text_color }};
+    --od-display-size: {{ s.text_size }};
+    --od-display-padding: {{ s.vertical_padding }}px;
+    --od-display-tracking: {{ s.letter_spacing }}em;
+    {%- if s.fill_image != blank -%}
+      --od-display-fill: url({{ s.fill_image | image_url: width: 2400 }});
+    {%- endif -%}
+  "
+>
+  {%- if fill_mode == 'video' -%}
+    {%- comment -%}
+      muted + playsinline + loop is the only combination that autoplays across
+      browsers. It is decorative, so it carries no controls and is hidden from
+      assistive tech — the heading below is the content.
+
+      Under prefers-reduced-motion the CSS hides the video and reveals the poster
+      image in its place, so there is still something behind the letters.
+    {%- endcomment -%}
+    <div class="od-display__media" aria-hidden="true">
+      {{
+        s.fill_video
+        | video_tag:
+          image_size: '1440x',
+          autoplay: true,
+          loop: true,
+          muted: true,
+          controls: false,
+          class: 'od-display__video'
+      }}
+      {%- if s.fill_image != blank -%}
+        <img
+          src="{{ s.fill_image | image_url: width: 1440 }}"
+          alt=""
+          class="od-display__video-poster"
+          loading="lazy"
+          width="{{ s.fill_image.width }}"
+          height="{{ s.fill_image.height }}"
+        >
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="od-display__knockout">
+    <{{ heading_tag }} class="od-display__text">
+      {{- s.text | escape | newline_to_br -}}
+    </{{ heading_tag }}>
+  </div>
+
+  {%- if fill_mode == 'image' and s.fill_image == blank and request.design_mode -%}
+    <p class="od-display__editor-hint">Choose a fill image or video for the text to show through.</p>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Display text",
+  "tag": "section",
+  "class": "od-section-wrapper",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "header", "content": "Text" },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Made to\nbe worn out",
+      "info": "Press Enter to start a new line. This stays as real text, so it can be translated and selected."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading importance",
+      "options": [
+        { "value": "h1", "label": "Main page heading (use once per page)" },
+        { "value": "h2", "label": "Section heading" },
+        { "value": "p", "label": "Not a heading" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 6, "max": 22, "step": 0.5, "unit": "vw", "default": 13,
+      "info": "Measured against the window width so the words keep filling the space at any size."
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "min": -0.06, "max": 0.2, "step": 0.01, "unit": "em", "default": -0.02
+    },
+
+    { "type": "header", "content": "Fill" },
+    {
+      "type": "image_picker",
+      "id": "fill_image",
+      "label": "Fill image",
+      "info": "Shows through the letters. Also used as the still frame when a video is set."
+    },
+    {
+      "type": "video",
+      "id": "fill_video",
+      "label": "Fill video",
+      "info": "Optional. When set, the video is used instead of the image."
+    },
+
+    { "type": "header", "content": "Surround" },
+    {
+      "type": "select",
+      "id": "surround_style",
+      "label": "Background around the text",
+      "options": [
+        { "value": "dark", "label": "Dark" },
+        { "value": "light", "label": "Light" }
+      ],
+      "default": "dark",
+      "info": "Only affects the video fill. Pick the one that matches the background colour below."
+    },
+    { "type": "color", "id": "surround_color", "label": "Background colour", "default": "#000000" },
+    {
+      "type": "color",
+      "id": "fallback_text_color",
+      "label": "Text colour on older browsers",
+      "default": "#ffffff",
+      "info": "Used where the see-through effect is not supported, so the text is never invisible."
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Space above and below",
+      "min": 0, "max": 160, "step": 4, "unit": "px", "default": 64
+    }
+  ],
+  "presets": [{ "name": "Display text" }]
+}
+{% endschema %}

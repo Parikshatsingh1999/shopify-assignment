@@ -1,0 +1,171 @@
+/*
+  od-display-text.css · Test 1 — Display text
+
+  Progressive enhancement, in this order:
+    1. Plain visible text in the fallback colour.        (always)
+    2. Image showing through the glyphs.                 (@supports background-clip: text)
+    3. Video showing through the glyphs.                 (@supports mix-blend-mode)
+
+  Step 1 is the base rule, never inside @supports, so a browser that understands
+  none of this still shows readable text.
+*/
+
+.od-display {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: var(--od-display-padding, 64px) var(--od-gutter-desktop);
+  background: var(--od-display-surround, #000);
+}
+
+/* 1 · Base — always visible text ---------------------------------------- */
+.od-display__text {
+  margin: 0;
+  font-family: var(--od-font-display);
+  font-size: var(--od-display-size, 13vw);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: var(--od-display-tracking, -0.02em);
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--od-display-fallback-ink, #fff);
+  /* Keeps the text selectable and the selection legible against the fill. */
+  -webkit-text-fill-color: currentColor;
+}
+
+.od-display__text::selection {
+  background: var(--od-focus);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+
+.od-display__knockout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.od-display__editor-hint {
+  position: absolute;
+  z-index: 2;
+  bottom: 12px;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: var(--od-radius-tile);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 13px;
+}
+
+/* 2 · Image fill --------------------------------------------------------- */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .od-display--image .od-display__text {
+    background-image: var(--od-display-fill, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* Only go transparent when there is actually something to show through. */
+  .od-display--image[style*='--od-display-fill'] .od-display__text {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* 3 · Video fill ---------------------------------------------------------
+   The video sits behind an opaque panel. Blending the panel against the video
+   lets the letters read through while the surround stays solid:
+     dark surround  → white text, multiply  (black stays black, white reveals)
+     light surround → black text, screen    (white stays white, black reveals)
+*/
+.od-display__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.od-display__video,
+.od-display__video video,
+.od-display__video-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.od-display__video-poster {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+@supports (mix-blend-mode: multiply) {
+  .od-display--video .od-display__knockout {
+    background: var(--od-display-surround, #000);
+    mix-blend-mode: var(--od-display-blend, multiply);
+  }
+
+  .od-display--video .od-display__text {
+    color: var(--od-display-ink, #fff);
+    -webkit-text-fill-color: var(--od-display-ink, #fff);
+  }
+
+  /* The panel must cover the whole section for the surround to stay opaque. */
+  .od-display--video {
+    display: block;
+  }
+
+  .od-display--video .od-display__knockout {
+    display: grid;
+    place-items: center;
+    min-height: 100%;
+    padding: 0;
+  }
+}
+
+/*
+  No blend-mode support: the knockout would paint a solid panel over the video
+  and hide it entirely. Drop back to plain text on the surround colour —
+  the words are the point, the video is the flourish.
+*/
+@supports not (mix-blend-mode: multiply) {
+  .od-display--video .od-display__media {
+    display: none;
+  }
+}
+
+/* Reduced motion: swap the moving video for its still frame. */
+@media (prefers-reduced-motion: reduce) {
+  .od-display__video {
+    display: none;
+  }
+
+  .od-display__video-poster {
+    display: block;
+  }
+}
+
+/* Responsive ------------------------------------------------------------- */
+@media screen and (max-width: 989px) {
+  .od-display {
+    padding-inline: var(--od-gutter-tablet);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .od-display {
+    padding-inline: var(--od-gutter-mobile);
+  }
+
+  .od-display__text {
+    /* The vw-based size gets small enough to lose the effect on a phone;
+       hold a floor so the fill is still readable through the letters. */
+    font-size: max(var(--od-display-size, 13vw), 44px);
+    line-height: 0.98;
+  }
+}

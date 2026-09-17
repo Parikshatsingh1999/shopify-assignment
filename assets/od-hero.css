@@ -1,0 +1,216 @@
+/*
+  od-hero.css · Test 1 — Hero (1440 × 810)
+
+  The hero holds the design's aspect ratio rather than a fixed height, so the
+  crop a merchant sets in Figma survives every viewport width. On short/wide
+  windows the min-height floor stops it collapsing.
+*/
+
+.od-hero {
+  position: relative;
+  display: flex;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 1440 / 810;
+  min-height: var(--od-hero-min-height, 520px);
+  max-height: 100svh;
+  overflow: hidden;
+  color: var(--od-hero-text, #fff);
+}
+
+/* Media ----------------------------------------------------------------- */
+.od-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.od-hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.od-hero__image--placeholder {
+  display: grid;
+  place-items: center;
+  background: #efefef;
+}
+
+.od-hero__placeholder-svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(0, 0, 0, 0.12);
+}
+
+.od-hero__scrim {
+  position: absolute;
+  inset: 0;
+  /* Gradient rather than a flat wash: keeps the top of the image clean while
+     still buying contrast where the copy sits. */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, calc(var(--od-hero-scrim, 0.2) * 0.4)) 0%,
+    rgba(0, 0, 0, var(--od-hero-scrim, 0.2)) 60%,
+    rgba(0, 0, 0, calc(var(--od-hero-scrim, 0.2) * 1.15)) 100%
+  );
+}
+
+/* Content --------------------------------------------------------------- */
+.od-hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: var(--od-hero-align-y, center);
+  justify-content: var(--od-hero-align-x, center);
+  width: 100%;
+  padding: clamp(32px, 6vw, 88px) var(--od-gutter-desktop);
+}
+
+.od-hero__lockup {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 28px);
+  max-width: min(var(--od-hero-headline-width, 720px), 100%);
+  text-align: center;
+  align-items: center;
+}
+
+/* Left/right alignment should carry through to the text itself, not just the box. */
+.od-hero__inner:has(> .od-hero__lockup) {
+  --od-hero-text-align: center;
+}
+
+.od-hero[style*="--od-hero-align-x: flex-start"] .od-hero__lockup {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.od-hero[style*="--od-hero-align-x: flex-end"] .od-hero__lockup {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.od-hero__headline {
+  margin: 0;
+  font-family: var(--od-font-display);
+  /* Scales with the canvas: 96px at the 1440 artboard, never below 36px. */
+  font-size: clamp(36px, 6.6vw, 96px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.od-hero__headline-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: var(--od-hero-headline-width, 720px);
+}
+
+.od-hero__subheadline {
+  margin: 0;
+  font-family: var(--od-font-body);
+  font-size: clamp(14px, 1.2vw, 18px);
+  line-height: 1.5;
+  max-width: 46ch;
+  opacity: 0.92;
+}
+
+.od-hero--shadowed .od-hero__headline,
+.od-hero--shadowed .od-hero__subheadline {
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+}
+
+.od-hero__cta {
+  margin-top: 4px;
+}
+
+.od-hero__editor-hint {
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: var(--od-radius-tile);
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+}
+
+/* Reviews tab ------------------------------------------------------------
+   Anchored to the right edge and vertically centred, as in the design. It is a
+   real link when the merchant sets a destination and an inert label when they
+   don't, so keyboard users never land on a control that does nothing. */
+.od-hero__reviews {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 10px;
+  border-radius: 6px 0 0 6px;
+  background: var(--od-paper);
+  color: var(--od-ink);
+  font-family: var(--od-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: var(--od-tracking-wider);
+  text-transform: uppercase;
+  text-decoration: none;
+  writing-mode: vertical-rl;
+  transition: padding var(--od-duration) var(--od-ease);
+}
+
+a.od-hero__reviews:hover,
+a.od-hero__reviews:focus-visible {
+  padding-inline: 14px;
+}
+
+.od-hero__reviews-stars {
+  writing-mode: horizontal-tb;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+/* Responsive -------------------------------------------------------------
+   Breakpoints follow Dawn's own (750 / 990) so this section behaves like the
+   rest of the theme rather than introducing a third set of rules.             */
+@media screen and (max-width: 989px) {
+  .od-hero__inner {
+    padding-inline: var(--od-gutter-tablet);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .od-hero {
+    /* A 16:9 crop is too letterboxed to hold a headline on a phone; go taller
+       and let the focal point setting decide what stays in frame. */
+    aspect-ratio: 4 / 5;
+  }
+
+  .od-hero__inner {
+    padding: 32px var(--od-gutter-mobile) 48px;
+    align-items: flex-end;
+  }
+
+  .od-hero__lockup {
+    text-align: center;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  .od-hero__reviews {
+    /* Vertical text next to a phone-width headline is a thumb trap — lay it
+       flat against the bottom-right instead. */
+    top: auto;
+    bottom: 16px;
+    transform: none;
+    writing-mode: horizontal-tb;
+    padding: 8px 14px;
+    border-radius: var(--od-radius-pill);
+    right: var(--od-gutter-mobile);
+    font-size: 11px;
+  }
+}

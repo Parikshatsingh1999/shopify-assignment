@@ -1,0 +1,342 @@
+{% comment %}
+  od-drop-teaser
+  Test 1 · Drop teaser — 1440 × 567, two panels.
+
+  Left  : patterned background, script headline, live countdown built from digit tiles.
+  Right : image card with an overlaid script caption and a "Get notified" email capture.
+
+  The email capture posts through Shopify's own {% form 'customer' %} (tagged
+  "newsletter"), so signups land in Customers in the admin with no app and no
+  third-party endpoint. Success and error states are rendered from Liquid on the
+  round trip, and validated client-side first so a typo never costs a page load.
+
+  Countdown behaviour at zero is a merchant setting — see "When the countdown ends".
+{% endcomment %}
+
+{{ 'od-base.css' | asset_url | stylesheet_tag }}
+{{ 'od-drop-teaser.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'od-countdown.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+
+  # Shopify stores the datetime picker value as "YYYY-MM-DD HH:MM". We hand the
+  # raw value plus the shop's UTC offset to the browser and let it do the maths,
+  # so the deadline means the same instant for every visitor regardless of where
+  # they are. Without the offset a shopper in Tokyo sees a different countdown
+  # from one in Berlin.
+  assign deadline_raw = s.deadline | default: ''
+  assign deadline_iso = deadline_raw | replace: ' ', 'T'
+
+  assign form_id = 'od-teaser-signup-' | append: section.id
+-%}
+
+<section
+  class="od-section od-teaser"
+  id="od-teaser-{{ section.id }}"
+  style="
+    --od-teaser-height: {{ s.panel_height }}px;
+    --od-teaser-split: {{ s.split_ratio }}%;
+    --od-teaser-left-bg: {{ s.left_background_color }};
+    --od-teaser-left-ink: {{ s.left_text_color }};
+    --od-teaser-pattern-size: {{ s.pattern_size }}px;
+    --od-teaser-pattern-opacity: {{ s.pattern_opacity | divided_by: 100.0 }};
+    --od-teaser-script: {{ s.script_font.family }}, {{ s.script_font.fallback_families }};
+    --od-teaser-tile-bg: {{ s.tile_background }};
+    --od-teaser-tile-ink: {{ s.tile_text_color }};
+  "
+>
+  {%- comment -%} ── Left panel ─────────────────────────────────────────── {%- endcomment -%}
+  <div class="od-teaser__panel od-teaser__panel--left">
+    {%- if s.pattern_image != blank -%}
+      <div
+        class="od-teaser__pattern"
+        aria-hidden="true"
+        style="background-image: url({{ s.pattern_image | image_url: width: 600 }});"
+      ></div>
+    {%- endif -%}
+
+    <div class="od-teaser__left-content">
+      {%- if s.eyebrow != blank -%}
+        <p class="od-teaser__eyebrow">{{ s.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if s.script_headline != blank -%}
+        <h2 class="od-teaser__script">{{ s.script_headline }}</h2>
+      {%- endif -%}
+
+      {%- if deadline_iso != blank -%}
+        <od-countdown
+          class="od-countdown"
+          data-deadline="{{ deadline_iso }}"
+          data-utc-offset="{{ 'now' | date: '%z' }}"
+          data-on-expire="{{ s.expired_behavior }}"
+          data-section-id="{{ section.id }}"
+        >
+          <div class="od-countdown__units" data-countdown-units>
+            {%- comment -%}
+              Units are rendered server-side from the merchant's choice so the
+              markup is complete before JS runs — no layout shift, and the tiles
+              are already in the DOM for the theme editor to measure.
+
+              Label wording note: the Figma labels the four groups
+              DAYS / HOURS / MINUTES / SECONDS but the third tile group only has
+              room for two digits at a "MINS" width. The labels are merchant
+              settings here so the built version can match the design exactly
+              once the copy is settled — see the README.
+            {%- endcomment -%}
+            {%- assign unit_keys = 'days,hours,minutes,seconds' | split: ',' -%}
+            {%- for unit in unit_keys -%}
+              {%- liquid
+                case unit
+                  when 'days'
+                    assign label = s.label_days
+                    assign enabled = s.show_days
+                  when 'hours'
+                    assign label = s.label_hours
+                    assign enabled = true
+                  when 'minutes'
+                    assign label = s.label_minutes
+                    assign enabled = true
+                  when 'seconds'
+                    assign label = s.label_seconds
+                    assign enabled = s.show_seconds
+                endcase
+              -%}
+              {%- if enabled -%}
+                <div class="od-countdown__unit" data-unit="{{ unit }}">
+                  <div class="od-countdown__tiles">
+                    <span class="od-countdown__tile" data-digit="0">0</span>
+                    <span class="od-countdown__tile" data-digit="1">0</span>
+                  </div>
+                  {%- if label != blank -%}
+                    <span class="od-countdown__label">{{ label | escape }}</span>
+                  {%- endif -%}
+                </div>
+                {%- unless unit == 'seconds' -%}
+                  <span class="od-countdown__sep" aria-hidden="true">:</span>
+                {%- endunless -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%}
+            Digit tiles are hidden from assistive tech (they read as loose
+            numbers). This region carries the same information as a sentence and
+            updates once a minute, which is informative without being a torrent.
+          {%- endcomment -%}
+          <p class="od-visually-hidden" data-countdown-announcer role="status" aria-live="polite"></p>
+
+          <p class="od-countdown__expired" data-countdown-expired hidden>
+            {{ s.expired_message | escape }}
+            {%- if s.expired_link_label != blank and s.expired_link != blank %}
+              <a class="od-teaser__expired-link" href="{{ s.expired_link }}">{{ s.expired_link_label | escape }}</a>
+            {%- endif -%}
+          </p>
+        </od-countdown>
+      {%- elsif request.design_mode -%}
+        <p class="od-teaser__editor-hint">Set the drop date and time to start the countdown.</p>
+      {%- endif -%}
+
+      {%- if s.left_body != blank -%}
+        <div class="od-teaser__left-body rte">{{ s.left_body }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} ── Right panel ────────────────────────────────────────── {%- endcomment -%}
+  <div class="od-teaser__panel od-teaser__panel--right">
+    <div class="od-teaser__card">
+      {%- if s.card_image != blank -%}
+        <img
+          src="{{ s.card_image | image_url: width: 720 }}"
+          srcset="
+            {{ s.card_image | image_url: width: 480 }} 480w,
+            {{ s.card_image | image_url: width: 720 }} 720w,
+            {{ s.card_image | image_url: width: 1440 }} 1440w
+          "
+          sizes="(min-width: 990px) 50vw, 100vw"
+          width="{{ s.card_image.width }}"
+          height="{{ s.card_image.height }}"
+          alt="{{ s.card_image.alt | escape }}"
+          class="od-teaser__card-image"
+          loading="lazy"
+        >
+      {%- else -%}
+        <div class="od-teaser__card-image od-teaser__card-image--placeholder">
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'od-teaser__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+
+      {%- if s.card_caption != blank -%}
+        <p class="od-teaser__caption">{{ s.card_caption }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="od-teaser__signup" id="{{ form_id }}">
+      {%- if s.signup_heading != blank -%}
+        <h3 class="od-teaser__signup-heading">{{ s.signup_heading | escape }}</h3>
+      {%- endif -%}
+
+      {%- if s.signup_body != blank -%}
+        <p class="od-teaser__signup-body">{{ s.signup_body | escape }}</p>
+      {%- endif -%}
+
+      {%- form 'customer', id: form_id, class: 'od-teaser__form', novalidate: 'novalidate' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        {%- comment -%}
+          Shopify redirects back to the page the form was posted from with
+          ?customer_posted=true. The anchor brings the shopper back to the form
+          rather than the top of the page, so the success message is on screen.
+        {%- endcomment -%}
+        <input type="hidden" name="return_to" value="{{ request.path }}?customer_posted=true#{{ form_id }}">
+
+        {%- if form.posted_successfully? -%}
+          <p class="od-teaser__state od-teaser__state--success" role="status" tabindex="-1" data-signup-success>
+            <span aria-hidden="true">✓</span> {{ s.success_message | escape }}
+          </p>
+        {%- else -%}
+          <div class="od-teaser__field">
+            <label class="od-visually-hidden" for="{{ form_id }}-email">{{ s.email_label | escape }}</label>
+            <input
+              id="{{ form_id }}-email"
+              type="email"
+              name="contact[email]"
+              value="{{ form.email }}"
+              placeholder="{{ s.email_label | escape }}"
+              autocomplete="email"
+              required
+              spellcheck="false"
+              class="od-teaser__input"
+              {% if form.errors %}aria-invalid="true" aria-describedby="{{ form_id }}-error"{% endif %}
+            >
+            <button type="submit" class="od-button od-teaser__submit">
+              {{ s.signup_button_label | escape }}
+            </button>
+          </div>
+
+          {%- comment -%}
+            One error node serves both sources: Shopify's server-side errors on
+            load, and the client-side validation message before submit.
+          {%- endcomment -%}
+          <p
+            class="od-teaser__state od-teaser__state--error"
+            id="{{ form_id }}-error"
+            role="alert"
+            data-signup-error
+            data-default-message="{{ s.error_message | escape }}"
+            {% unless form.errors %}hidden{% endunless %}
+          >
+            {%- if form.errors -%}
+              {{ form.errors.messages['email'] | default: s.error_message | escape }}
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Drop teaser",
+  "tag": "section",
+  "class": "od-section-wrapper",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "header", "content": "Countdown" },
+    {
+      "type": "text",
+      "id": "deadline",
+      "label": "Drop date and time",
+      "default": "2026-12-01 10:00",
+      "info": "Format: YYYY-MM-DD HH:MM, in your store's timezone (set under Settings → General)."
+    },
+    {
+      "type": "select",
+      "id": "expired_behavior",
+      "label": "When the countdown ends",
+      "options": [
+        { "value": "message", "label": "Replace the timer with a message" },
+        { "value": "zero", "label": "Keep the timer showing all zeros" },
+        { "value": "hide", "label": "Hide this section entirely" }
+      ],
+      "default": "message"
+    },
+    { "type": "text", "id": "expired_message", "label": "Message when it ends", "default": "The drop is live." },
+    { "type": "text", "id": "expired_link_label", "label": "Link label when it ends", "default": "Shop now" },
+    { "type": "url", "id": "expired_link", "label": "Link when it ends" },
+    { "type": "checkbox", "id": "show_days", "label": "Show days", "default": true },
+    { "type": "checkbox", "id": "show_seconds", "label": "Show seconds", "default": true },
+    { "type": "text", "id": "label_days", "label": "Label under days", "default": "Days" },
+    { "type": "text", "id": "label_hours", "label": "Label under hours", "default": "Hours" },
+    { "type": "text", "id": "label_minutes", "label": "Label under minutes", "default": "Minutes" },
+    { "type": "text", "id": "label_seconds", "label": "Label under seconds", "default": "Seconds" },
+
+    { "type": "header", "content": "Left panel" },
+    { "type": "text", "id": "eyebrow", "label": "Small line above the headline", "default": "Coming soon" },
+    { "type": "text", "id": "script_headline", "label": "Script headline", "default": "The Drop" },
+    {
+      "type": "font_picker",
+      "id": "script_font",
+      "label": "Script headline font",
+      "default": "assistant_n4"
+    },
+    { "type": "richtext", "id": "left_body", "label": "Supporting text" },
+    { "type": "image_picker", "id": "pattern_image", "label": "Background pattern" },
+    {
+      "type": "range",
+      "id": "pattern_size",
+      "label": "Pattern tile size",
+      "min": 40, "max": 400, "step": 10, "unit": "px", "default": 160
+    },
+    {
+      "type": "range",
+      "id": "pattern_opacity",
+      "label": "Pattern strength",
+      "min": 5, "max": 100, "step": 5, "unit": "%", "default": 100
+    },
+    { "type": "color", "id": "left_background_color", "label": "Left panel colour", "default": "#f3ece2" },
+    { "type": "color", "id": "left_text_color", "label": "Left panel text colour", "default": "#111111" },
+    { "type": "color", "id": "tile_background", "label": "Countdown tile colour", "default": "#ffffff" },
+    { "type": "color", "id": "tile_text_color", "label": "Countdown number colour", "default": "#111111" },
+
+    { "type": "header", "content": "Right panel" },
+    { "type": "image_picker", "id": "card_image", "label": "Image" },
+    { "type": "text", "id": "card_caption", "label": "Caption over the image", "default": "Just landed" },
+
+    { "type": "header", "content": "Email capture" },
+    { "type": "text", "id": "signup_heading", "label": "Heading", "default": "Get notified" },
+    { "type": "text", "id": "signup_body", "label": "Supporting line", "default": "Be first in line when it drops." },
+    { "type": "text", "id": "email_label", "label": "Email field placeholder", "default": "Email address" },
+    { "type": "text", "id": "signup_button_label", "label": "Button label", "default": "Notify me" },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Message after signing up",
+      "default": "You're on the list. We'll email you when it drops."
+    },
+    {
+      "type": "text",
+      "id": "error_message",
+      "label": "Message when the email is invalid",
+      "default": "Enter a valid email address."
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "range",
+      "id": "panel_height",
+      "label": "Panel height at full width",
+      "min": 360, "max": 800, "step": 10, "unit": "px", "default": 567
+    },
+    {
+      "type": "range",
+      "id": "split_ratio",
+      "label": "Width of the left panel",
+      "min": 30, "max": 70, "step": 5, "unit": "%", "default": 50
+    }
+  ],
+  "presets": [{ "name": "Drop teaser" }]
+}
+{% endschema %}

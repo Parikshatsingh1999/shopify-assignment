@@ -1,0 +1,329 @@
+/*
+  od-drop-teaser.css · Test 1 — Drop teaser (1440 × 567, two panels)
+
+  Two panels side by side on desktop, stacked on mobile with the countdown
+  staying above the fold of the section. The split ratio and panel height are
+  merchant settings, so nothing here hardcodes 50/50.
+*/
+
+.od-teaser {
+  display: grid;
+  grid-template-columns: var(--od-teaser-split, 50%) 1fr;
+  min-height: var(--od-teaser-height, 567px);
+  width: 100%;
+  font-family: var(--od-font-body);
+}
+
+.od-teaser__panel {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Left panel ─────────────────────────────────────────────────────────── */
+
+.od-teaser__panel--left {
+  background-color: var(--od-teaser-left-bg, #f3ece2);
+  color: var(--od-teaser-left-ink, #111);
+  align-items: center;
+  justify-content: center;
+}
+
+.od-teaser__pattern {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  background-size: var(--od-teaser-pattern-size, 160px) auto;
+  opacity: var(--od-teaser-pattern-opacity, 1);
+  pointer-events: none;
+}
+
+.od-teaser__left-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 2.2vw, 28px);
+  padding: clamp(40px, 5vw, 72px) clamp(24px, 4vw, 64px);
+  text-align: center;
+  max-width: 560px;
+}
+
+.od-teaser__eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: var(--od-tracking-wider);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.od-teaser__script {
+  margin: 0;
+  font-family: var(--od-teaser-script, var(--od-font-script));
+  font-size: clamp(40px, 5.2vw, 76px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.od-teaser__left-body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 44ch;
+}
+
+.od-teaser__editor-hint,
+.od-countdown__expired {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.od-teaser__expired-link {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+/* ── Countdown ──────────────────────────────────────────────────────────── */
+
+.od-countdown {
+  display: block;
+}
+
+.od-countdown__units {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(8px, 1.2vw, 18px);
+}
+
+.od-countdown__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.od-countdown__tiles {
+  display: flex;
+  gap: 6px;
+}
+
+/* One tile per digit, as drawn in the Figma. */
+.od-countdown__tile {
+  display: grid;
+  place-items: center;
+  min-width: clamp(38px, 3.8vw, 56px);
+  padding: clamp(8px, 1vw, 14px) 4px;
+  border-radius: var(--od-radius-tile);
+  background: var(--od-teaser-tile-bg, #fff);
+  color: var(--od-teaser-tile-ink, #111);
+  font-family: var(--od-font-display);
+  font-size: clamp(24px, 2.6vw, 40px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.od-countdown__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--od-tracking-wider);
+  text-transform: uppercase;
+  opacity: 0.66;
+}
+
+.od-countdown__sep {
+  align-self: flex-start;
+  padding-top: clamp(8px, 1vw, 14px);
+  font-family: var(--od-font-display);
+  font-size: clamp(20px, 2.2vw, 32px);
+  line-height: 1;
+  opacity: 0.35;
+}
+
+/* The flip is a 120ms nudge, not a carousel — enough to register a change. */
+@media (prefers-reduced-motion: no-preference) {
+  .od-countdown__tile--flip {
+    animation: od-tile-flip 220ms var(--od-ease);
+  }
+
+  @keyframes od-tile-flip {
+    0% {
+      transform: translateY(-14%) scaleY(0.86);
+      opacity: 0.55;
+    }
+    100% {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+/* ── Right panel ────────────────────────────────────────────────────────── */
+
+.od-teaser__panel--right {
+  flex-direction: column;
+  background: var(--od-paper);
+  color: var(--od-ink);
+}
+
+.od-teaser__card {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.od-teaser__card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.od-teaser__card-image--placeholder {
+  display: grid;
+  place-items: center;
+  background: #efefef;
+  min-height: 240px;
+}
+
+.od-teaser__placeholder-svg {
+  width: 100%;
+  height: 100%;
+  fill: rgba(0, 0, 0, 0.12);
+}
+
+.od-teaser__caption {
+  position: absolute;
+  left: clamp(20px, 2.6vw, 40px);
+  bottom: clamp(20px, 2.6vw, 40px);
+  margin: 0;
+  max-width: 70%;
+  font-family: var(--od-teaser-script, var(--od-font-script));
+  font-size: clamp(28px, 3.2vw, 48px);
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Email capture ──────────────────────────────────────────────────────── */
+
+.od-teaser__signup {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(20px, 2.6vw, 36px) clamp(20px, 3vw, 48px) clamp(24px, 3vw, 40px);
+}
+
+.od-teaser__signup-heading {
+  margin: 0;
+  font-family: var(--od-font-display);
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.2;
+  letter-spacing: var(--od-tracking-wide);
+  text-transform: uppercase;
+}
+
+.od-teaser__signup-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--od-ink-muted);
+}
+
+.od-teaser__form {
+  margin: 0;
+}
+
+.od-teaser__field {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.od-teaser__input {
+  flex: 1 1 220px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--od-line);
+  border-radius: var(--od-radius-pill);
+  background: var(--od-paper);
+  color: var(--od-ink);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.od-teaser__input::placeholder {
+  color: var(--od-ink-muted);
+}
+
+.od-teaser__input[aria-invalid='true'] {
+  border-color: var(--od-sale);
+}
+
+.od-teaser__submit {
+  flex: 0 0 auto;
+}
+
+.od-teaser__state {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.od-teaser__state--error {
+  color: var(--od-sale);
+}
+
+.od-teaser__state--success {
+  color: #0f7b48;
+}
+
+.od-teaser__state--success:focus {
+  outline: none; /* focus is moved here programmatically; the message is the cue */
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media screen and (max-width: 989px) {
+  .od-teaser {
+    /* Below the desktop breakpoint the two panels stop reading as a pair at
+       50/50 — the countdown gets cramped first, so it takes the full width. */
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .od-teaser__panel--left {
+    min-height: 380px;
+  }
+
+  .od-teaser__card {
+    aspect-ratio: 3 / 2;
+    flex: 0 0 auto;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .od-countdown__units {
+    gap: 6px;
+  }
+
+  .od-countdown__sep {
+    display: none; /* the tile groups and labels already separate the units */
+  }
+
+  .od-teaser__field {
+    flex-direction: column;
+  }
+
+  .od-teaser__submit {
+    width: 100%;
+  }
+}

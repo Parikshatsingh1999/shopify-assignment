@@ -1,0 +1,276 @@
+{% comment %}
+  od-hero
+  Test 1 · Hero — 1440 × 810 in the Figma.
+
+  Full-bleed background image, an overlaid headline lockup (image or live text),
+  a primary CTA pointed at a merchant-chosen collection, and the vertical
+  "Reviews" tab pinned to the right edge.
+
+  Standalone: carries no assumptions about what sits above or below it, so it can
+  be added, removed or reordered on its own in the theme editor.
+{% endcomment %}
+
+{{ 'od-base.css' | asset_url | stylesheet_tag }}
+{{ 'od-hero.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign s = section.settings
+
+  # The collection picker is the primary control; the free URL field is an escape
+  # hatch for merchants who want to point the button somewhere else entirely.
+  assign cta_url = s.cta_url
+  if cta_url == blank and s.cta_collection != blank
+    assign cta_url = s.cta_collection.url
+  endif
+
+  assign heading_tag = s.heading_tag | default: 'h2'
+
+  # Headline image wins when both are set; the text is still rendered for screen
+  # readers and translation so the heading never disappears from the document.
+  assign has_headline_image = false
+  if s.headline_image != blank
+    assign has_headline_image = true
+  endif
+-%}
+
+<section
+  class="od-section od-hero{% if s.text_shadow %} od-hero--shadowed{% endif %}"
+  style="
+    --od-hero-ratio: {{ s.desktop_height }} / 1440;
+    --od-hero-min-height: {{ s.mobile_min_height }}px;
+    --od-hero-scrim: {{ s.overlay_opacity | times: 1.0 | divided_by: 100.0 }};
+    --od-hero-text: {{ s.text_color }};
+    --od-hero-align-x: {{ s.horizontal_alignment }};
+    --od-hero-align-y: {{ s.vertical_alignment }};
+    --od-hero-headline-width: {{ s.headline_max_width }}px;
+  "
+>
+  <div class="od-hero__media">
+    {%- if s.background_image != blank -%}
+      {%- comment -%}
+        Eager + high priority: this is the LCP element on the landing page.
+        Widths stop at 2880 (2× the 1440 artboard) — anything larger is wasted bytes.
+      {%- endcomment -%}
+      <img
+        src="{{ s.background_image | image_url: width: 1440 }}"
+        srcset="
+          {{ s.background_image | image_url: width: 750 }} 750w,
+          {{ s.background_image | image_url: width: 1100 }} 1100w,
+          {{ s.background_image | image_url: width: 1440 }} 1440w,
+          {{ s.background_image | image_url: width: 2160 }} 2160w,
+          {{ s.background_image | image_url: width: 2880 }} 2880w
+        "
+        sizes="100vw"
+        width="{{ s.background_image.width }}"
+        height="{{ s.background_image.height }}"
+        alt="{{ s.background_image.alt | escape }}"
+        class="od-hero__image"
+        loading="eager"
+        fetchpriority="high"
+        style="object-position: {{ s.background_focal_x }}% {{ s.background_focal_y }}%;"
+      >
+    {%- else -%}
+      <div class="od-hero__image od-hero__image--placeholder">
+        {{ 'hero-apparel-1' | placeholder_svg_tag: 'od-hero__placeholder-svg' }}
+      </div>
+    {%- endif -%}
+
+    {%- if s.overlay_opacity > 0 -%}
+      <div class="od-hero__scrim" aria-hidden="true"></div>
+    {%- endif -%}
+  </div>
+
+  <div class="od-hero__inner">
+    <div class="od-hero__lockup">
+      {%- if has_headline_image -%}
+        <img
+          src="{{ s.headline_image | image_url: width: 1200 }}"
+          srcset="
+            {{ s.headline_image | image_url: width: 600 }} 600w,
+            {{ s.headline_image | image_url: width: 900 }} 900w,
+            {{ s.headline_image | image_url: width: 1200 }} 1200w
+          "
+          sizes="(min-width: 990px) {{ s.headline_max_width }}px, 80vw"
+          width="{{ s.headline_image.width }}"
+          height="{{ s.headline_image.height }}"
+          alt=""
+          class="od-hero__headline-image"
+          loading="eager"
+        >
+        {%- comment -%}
+          The headline image is decorative (alt=""); the real heading lives here so
+          the page keeps a proper outline and the copy stays translatable.
+        {%- endcomment -%}
+        <{{ heading_tag }} class="od-visually-hidden">{{ s.headline | escape }}</{{ heading_tag }}>
+      {%- elsif s.headline != blank -%}
+        <{{ heading_tag }} class="od-hero__headline">{{ s.headline }}</{{ heading_tag }}>
+      {%- endif -%}
+
+      {%- if s.subheadline != blank -%}
+        <p class="od-hero__subheadline">{{ s.subheadline }}</p>
+      {%- endif -%}
+
+      {%- if s.cta_label != blank and cta_url != blank -%}
+        <a class="od-button od-button--solid od-hero__cta" href="{{ cta_url }}">
+          {{ s.cta_label | escape }}
+        </a>
+      {%- elsif s.cta_label != blank and request.design_mode -%}
+        {%- comment -%} Editor-only nudge so the merchant sees why nothing rendered. {%- endcomment -%}
+        <p class="od-hero__editor-hint">Pick a collection for this button to link to.</p>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if s.show_reviews_tab -%}
+    {%- liquid
+      assign reviews_url = s.reviews_url
+      assign reviews_tag = 'a'
+      if reviews_url == blank
+        assign reviews_tag = 'div'
+      endif
+    -%}
+    <{{ reviews_tag }}
+      class="od-hero__reviews"
+      {% if reviews_tag == 'a' %}href="{{ reviews_url }}"{% endif %}
+    >
+      <span class="od-hero__reviews-label">{{ s.reviews_label | escape }}</span>
+      {%- if s.reviews_stars > 0 -%}
+        <span class="od-hero__reviews-stars" aria-hidden="true">
+          {%- for i in (1..s.reviews_stars) -%}★{%- endfor -%}
+        </span>
+      {%- endif -%}
+    </{{ reviews_tag }}>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "class": "od-section-wrapper",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "header", "content": "Background" },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "info": "Use a landscape image at least 2880px wide for a sharp full-width hero."
+    },
+    {
+      "type": "range",
+      "id": "background_focal_x",
+      "label": "Focus point — across",
+      "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50,
+      "info": "Move this if the subject gets cropped out on narrow screens."
+    },
+    {
+      "type": "range",
+      "id": "background_focal_y",
+      "label": "Focus point — up and down",
+      "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Darken the image behind the text",
+      "min": 0, "max": 80, "step": 5, "unit": "%", "default": 20,
+      "info": "Raise this if the headline is hard to read."
+    },
+
+    { "type": "header", "content": "Headline" },
+    {
+      "type": "image_picker",
+      "id": "headline_image",
+      "label": "Headline artwork",
+      "info": "Optional. Use this for the lettering from the design. The headline text below is still used by screen readers and translations."
+    },
+    { "type": "text", "id": "headline", "label": "Headline text", "default": "The new drop" },
+    { "type": "text", "id": "subheadline", "label": "Supporting line" },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Headline importance",
+      "options": [
+        { "value": "h1", "label": "Main page heading (use once per page)" },
+        { "value": "h2", "label": "Section heading" }
+      ],
+      "default": "h1",
+      "info": "Only one section on a page should be the main page heading."
+    },
+    {
+      "type": "range",
+      "id": "headline_max_width",
+      "label": "Headline width",
+      "min": 200, "max": 1200, "step": 20, "unit": "px", "default": 720
+    },
+    { "type": "color", "id": "text_color", "label": "Text colour", "default": "#ffffff" },
+    {
+      "type": "checkbox",
+      "id": "text_shadow",
+      "label": "Add a soft shadow behind the text",
+      "default": false
+    },
+
+    { "type": "header", "content": "Button" },
+    { "type": "text", "id": "cta_label", "label": "Button label", "default": "Shop the collection" },
+    { "type": "collection", "id": "cta_collection", "label": "Button links to this collection" },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Or link somewhere else",
+      "info": "Leave empty to use the collection above."
+    },
+
+    { "type": "header", "content": "Reviews tab" },
+    { "type": "checkbox", "id": "show_reviews_tab", "label": "Show the Reviews tab", "default": true },
+    { "type": "text", "id": "reviews_label", "label": "Reviews tab text", "default": "Reviews" },
+    { "type": "url", "id": "reviews_url", "label": "Reviews tab links to" },
+    {
+      "type": "range",
+      "id": "reviews_stars",
+      "label": "Stars shown on the tab",
+      "min": 0, "max": 5, "step": 1, "default": 0,
+      "info": "Set to 0 to show the text only."
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Height at full width",
+      "min": 400, "max": 1000, "step": 10, "unit": "px", "default": 810,
+      "info": "810px matches the design. The hero keeps this shape as the window resizes."
+    },
+    {
+      "type": "range",
+      "id": "mobile_min_height",
+      "label": "Smallest height on mobile",
+      "min": 300, "max": 800, "step": 10, "unit": "px", "default": 520
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment",
+      "label": "Text position — across",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Centre" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "Text position — up and down",
+      "options": [
+        { "value": "flex-start", "label": "Top" },
+        { "value": "center", "label": "Middle" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    }
+  ],
+  "presets": [{ "name": "Hero" }]
+}
+{% endschema %}
