@@ -1,18 +1,31 @@
 /*
-  od-product-card.css · Test 2 — Product card (214 × 415 at the 1440 artboard)
+  od-product-card.css · Test 2 — Product card
 
-  The card never sets its own width. It fills whatever grid cell it is dropped
-  into and takes its proportions from the image ratio, so the same snippet works
-  in a six-up collection grid, a four-up featured row or a search results page.
+  Every number here is from the Figma (node 1:200), not eyeballed:
 
-  Every state that has to survive real data lives here: long titles, missing
-  images, sold-out variants, twelve colours.
+    card      214 × 415            image  214 × 320
+    controls  198 wide, 8px inset, 8px above the image bottom
+    pill      h32, px8 py4, gap4, radius 100, white @ 80%
+    dot       13.26 circle, selected = 1px black ring
+    quick add 32 circle, white @ 80%, bag glyph 12.4 × 16
+    content   px10 pt10 pb16, 8px between rows
+    title     Helvetica Bold 14/1.2 #000, one line, ellipsis
+    vendor    Roboto Medium 14/20 #000, tracking 0.25px
+    secondary Helvetica 14/1.2 #666
+    price     Helvetica 16/1.2 #000 · was-price 12 struck
+    clearance Helvetica 14/18 #940202, tracking 0.26px
+
+  The card never sets its own width — it fills whatever grid cell it is dropped
+  into and takes its proportions from --od-card-ratio, so the same snippet works
+  in a six-up collection grid, a four-up featured row, or search results.
+
+  Sizes are px, not fluid: the design is a fixed 1440 artboard with a fixed
+  214px card inside it, and scaling this type would break the grid's rhythm.
 */
 
 .od-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   position: relative;
   font-family: var(--od-font-body);
   color: var(--od-ink);
@@ -22,7 +35,7 @@
 
 .od-card__media {
   position: relative;
-  aspect-ratio: var(--od-card-ratio, 214 / 316);
+  aspect-ratio: var(--od-card-ratio, 214 / 320);
   overflow: hidden;
   border-radius: 0; /* square corners, as drawn */
   background: #f4f4f4;
@@ -61,75 +74,77 @@
 }
 
 /* A sold-out product reads as muted, but not so faint that the copy fails
-   contrast — the badge carries the actual message. */
+   contrast — the pill carries the actual message. */
 .od-card--sold-out .od-card__image {
   opacity: 0.55;
 }
 
-/* ── Badges ─────────────────────────────────────────────────────────────── */
+/* ── Final Sale / Sold out ──────────────────────────────────────────────—
+   White pill, black text, top-left of the image at 8/8. */
 
-.od-card__badges {
+.od-card__final-sale,
+.od-card__sold-out {
   position: absolute;
+  z-index: 2;
   top: 8px;
   left: 8px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  /* Never let a badge stack cover the whole card on a narrow cell. */
+  padding: 6px 12px;
+  border-radius: var(--od-radius-pill);
+  background: #fff;
+  color: var(--od-ink);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.2637px;
+  white-space: nowrap;
   max-width: calc(100% - 16px);
 }
 
-.od-card__badge {
-  padding: 4px 8px;
-  border-radius: 2px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: var(--od-tracking-wide);
-  line-height: 1.2;
-  text-transform: uppercase;
-  white-space: nowrap;
+/* A product that is both on final sale and sold out stacks them rather than
+   painting one on top of the other. */
+.od-card__final-sale ~ .od-card__sold-out {
+  top: 42px;
 }
 
-.od-card__badge--clearance {
-  background: var(--od-sale);
-  color: #fff;
+/* ── Controls row ───────────────────────────────────────────────────────—
+   198px wide (8px in from both edges), 8px above the image bottom. One row with
+   space-between, so the pill and the button stay on a shared baseline however
+   wide the card's cell happens to be. */
+
+.od-card__controls {
+  position: absolute;
+  z-index: 3;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* The image link sits underneath and should stay clickable between the two
+     controls; each control takes its own pointer events back. */
+  pointer-events: none;
 }
 
-.od-card__badge--final {
-  background: var(--od-final-sale);
-  color: #fff;
+.od-card__controls > * {
+  pointer-events: auto;
 }
 
-.od-card__badge--sold-out {
-  background: #fff;
-  color: var(--od-ink);
-  box-shadow: inset 0 0 0 1px var(--od-line);
-}
-
-/* ── Swatches ────────────────────────────────────────────────────────────
-   Drawn as a white rounded pill sitting over the bottom-left of the image,
-   with the colour dots inside it and the overflow marker as the last slot.
-   The pill — not the card — is what the dots sit on, so the swatches stay
-   legible over any photograph. */
+/* ── Swatches ───────────────────────────────────────────────────────────—
+   A white pill over the image. The pill — not the card — is what the dots sit
+   on, which is what keeps them legible over any photograph. */
 
 .od-card__swatches {
-  position: absolute;
-  z-index: 2;
-  left: 10px;
-  bottom: 10px;
-  /* Left-anchored, sized to its contents. Stretching it to the card's width
-     would put the overflow marker far from the dots it belongs to. */
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 9px;
-  border-radius: var(--od-radius-pill);
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(2px);
+  gap: 4px;
+  height: 32px;
+  padding: 4px 8px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
   flex-wrap: nowrap;
-  max-width: calc(100% - 58px); /* leaves the quick-add circle its corner */
+  min-width: 0;
 }
 
 .od-card__swatch {
@@ -137,43 +152,42 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 15px;
-  height: 15px;
+  width: 16.35px;
+  height: 16.35px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: none;
   cursor: pointer;
   transition: box-shadow var(--od-duration) var(--od-ease);
+  /* --swatch--* are read by Dawn's swatch snippet; see the note below. */
+  --swatch--size: 13.26px;
+  --swatch--border-radius: 50%;
 }
 
-/* Selected: a ring drawn outside the dot, so selecting never changes its size
-   and the row never reflows as the shopper clicks along it. */
+/* Selected: a hairline ring around the dot, as drawn. Because it is a shadow
+   rather than a border, selecting never changes the dot's size, so the row
+   never reflows as the shopper clicks along it. */
 .od-card__swatch[aria-checked='true'] {
-  box-shadow: 0 0 0 1.5px var(--od-ink);
+  box-shadow: inset 0 0 0 1px #000;
 }
 
 /*
   Two swatch renderings share one look:
-  · .swatch          — Dawn's swatch snippet, driven by Shopify's swatch data
+  · .swatch              — Dawn's swatch snippet, driven by Shopify's swatch data
   · .od-card__swatch-dot — the CSS-colour-keyword fallback
 
   Dawn's own component-swatch.css is only loaded by its product and facet
   sections, so this card cannot assume it is on the page. These rules are
   self-sufficient, and they still win on specificity where that stylesheet *is*
-  loaded (a product page), so the swatch keeps the card's size instead of
+  loaded (a product page), so the swatch keeps the card's size rather than
   Dawn's 4.4rem.
 */
-.od-card__swatch {
-  --swatch--size: 15px;
-  --swatch--border-radius: 50%;
-}
-
 .od-card__swatch-dot,
 .od-card__swatch .swatch {
   display: block;
-  width: 15px;
-  height: 15px;
+  width: 13.26px;
+  height: 13.26px;
   border: 0;
   border-radius: 50%;
   /* --swatch--background is set inline by Dawn's swatch snippet, as a colour or
@@ -182,11 +196,10 @@
   background: var(--swatch--background, #ddd);
   background-size: cover;
   background-position: var(--swatch-focal-point, center);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 /* A colour with nothing left in stock: still selectable — a shopper may well
-   want to look at it — but struck through so the state is visible before the
+   want to look at it — but struck through, so the state is visible before the
    click rather than after it. */
 .od-card__swatch--unavailable .od-card__swatch-dot,
 .od-card__swatch--unavailable .swatch {
@@ -202,43 +215,29 @@
   transform: rotate(-45deg);
 }
 
-/*
-  Overflow marker, in the pill's last slot.
-
-  The design draws a small neutral dot here. A bare dot doesn't say what it
-  does, and the brief asks for an indicator, so this carries the count as "+N"
-  at the same footprint — same silhouette in the pill, but it tells the shopper
-  there are eight more colours and takes them to the product page. Flagged in
-  the README.
-*/
+/* Overflow: the plus glyph from the design, in the pill's last slot. The count
+   rides in the link's accessible name, which the glyph alone cannot carry. */
 .od-card__swatch-more {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  min-width: 15px;
-  height: 15px;
-  padding: 0 3px;
-  border-radius: var(--od-radius-pill);
-  background: rgba(17, 17, 17, 0.07);
+  width: 24.27px;
+  height: 18.2px;
   color: var(--od-ink);
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0;
   text-decoration: none;
+  opacity: 0.85;
+  transition: opacity var(--od-duration) var(--od-ease);
 }
 
 .od-card__swatch-more:hover {
-  background: rgba(17, 17, 17, 0.14);
+  opacity: 1;
 }
 
 /* ── Quick add ──────────────────────────────────────────────────────────── */
 
 .od-card__quick-add {
-  position: absolute;
-  z-index: 3;
-  right: 10px;
-  bottom: 10px; /* bottom-right in the design, not top-right */
+  position: relative;
+  flex: 0 0 auto;
 }
 
 .od-card__quick-add-form {
@@ -246,17 +245,18 @@
 }
 
 .od-card__quick-add-button {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
   color: var(--od-ink);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
   transition: background var(--od-duration) var(--od-ease), color var(--od-duration) var(--od-ease);
 }
 
@@ -272,6 +272,12 @@
 
 .od-card__quick-add-button[aria-busy='true'] {
   cursor: progress;
+}
+
+.od-card__quick-add-icon,
+.od-card__quick-add-tick {
+  display: grid;
+  place-items: center;
 }
 
 .od-card__quick-add-spinner {
@@ -299,14 +305,14 @@
 
 .od-card__quick-add-error {
   position: absolute;
-  bottom: 34px;
+  bottom: 40px;
   right: 0;
   width: max-content;
-  max-width: 180px;
+  max-width: 170px;
   margin: 0;
   padding: 6px 8px;
   border-radius: var(--od-radius-tile);
-  background: var(--od-sale);
+  background: var(--od-clearance);
   color: #fff;
   font-size: 11px;
   line-height: 1.35;
@@ -317,26 +323,48 @@
 .od-card__body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 8px;
+  padding: 10px 10px 16px;
+}
+
+/* Clearance is text in the design, not a badge — dark red, above the title. */
+.od-card__clearance {
+  margin: 0;
+  color: var(--od-clearance);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.2637px;
+}
+
+.od-card__title-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
 }
 
 .od-card__title {
+  /* flex + min-width:0 is what lets the ellipsis actually engage. Without the
+     min-width, a long title pushes the vendor out of the card instead. */
+  flex: 1 1 0;
+  min-width: 0;
   margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
   letter-spacing: 0;
 }
 
 .od-card__title-link {
+  display: block;
   color: inherit;
   text-decoration: none;
-  /* Two lines, then ellipsis. A 90-character title must not push the price of
-     this card below the price of the one next to it. */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  /* One line with an ellipsis, as drawn. A 90-character title must not push
+     this card's price out of line with the card beside it. */
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .od-card__title-link:hover {
@@ -352,56 +380,64 @@
   z-index: 1;
 }
 
-.od-card__secondary,
+/* Vendor holds its width at the end of the title row. */
 .od-card__vendor {
+  flex: 0 0 auto;
   margin: 0;
-  font-size: 11px;
-  line-height: 1.4;
-  color: var(--od-ink-muted);
+  font-family: var(--od-font-vendor, var(--od-font-body));
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  color: var(--od-ink);
+  white-space: nowrap;
 }
 
-.od-card__vendor {
-  letter-spacing: var(--od-tracking-wide);
-  text-transform: uppercase;
-  font-size: 10px;
+.od-card__secondary {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #666;
 }
 
 .od-card__price {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-top: 2px;
-  font-size: 13px;
-  font-weight: 600;
+  align-items: flex-end;
+  gap: 10px;
 }
 
-.od-card__price-current--sale {
-  color: var(--od-sale);
+.od-card__price-current {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--od-ink);
 }
 
 .od-card__price-was {
-  color: var(--od-ink-muted);
+  font-size: 12px;
   font-weight: 400;
+  line-height: 1.2;
+  color: var(--od-ink);
   text-decoration: line-through;
 }
 
-/* ── Small screens ──────────────────────────────────────────────────────── */
+/* ── Small screens ──────────────────────────────────────────────────────—
+   The design is desktop-only. Below 750 a card cell is about half a phone
+   viewport, where 14/16px still reads — so the type stays on the design and
+   only the touch targets need help: visual sizes hold, hit areas grow past
+   them. */
 
 @media screen and (max-width: 749px) {
-  .od-card__quick-add-button,
-  .od-card__swatch {
-    /* Touch targets: the visual size stays on the design, the hit area grows. */
-    position: relative;
-  }
-
-  .od-card__quick-add-button::before,
-  .od-card__swatch::before {
+  .od-card__swatch::before,
+  .od-card__quick-add-button::before {
     content: '';
     position: absolute;
-    inset: -8px;
+    inset: -7px;
   }
 
-  .od-card__title {
-    font-size: 12px;
+  /* 24px between title and vendor is a lot of a 160px-wide card. */
+  .od-card__title-row {
+    gap: 10px;
   }
 }

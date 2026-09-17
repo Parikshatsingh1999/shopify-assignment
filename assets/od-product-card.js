@@ -101,8 +101,9 @@ const OdCard = {
     const current = card.querySelector('[data-od-price-current]');
     const was = card.querySelector('[data-od-price-was]');
     if (current) {
+      // The design keeps the current price black on sale; the struck-through
+      // was-price and the Clearance line are what signal the discount.
       current.textContent = variant.price;
-      current.classList.toggle('od-card__price-current--sale', Boolean(variant.onSale));
     }
     if (was) {
       was.textContent = variant.compareAt || '';

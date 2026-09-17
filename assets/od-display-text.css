@@ -16,17 +16,20 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: var(--od-display-padding, 64px) var(--od-gutter-desktop);
-  background: var(--od-display-surround, #000);
+  /* 24px all round in the design; the section is 1440 × 264. */
+  padding: var(--od-display-padding, 24px);
+  background: var(--od-display-surround, #fff);
 }
 
 /* 1 · Base — always visible text ---------------------------------------- */
 .od-display__text {
   margin: 0;
   font-family: var(--od-font-display);
-  font-size: var(--od-display-size, 13vw);
+  /* 300px at the 1440 artboard = 20.8vw. One line, as drawn. */
+  font-size: var(--od-display-size, 21vw);
   font-weight: 400;
-  line-height: 0.95;
+  line-height: 1.2;
+  white-space: nowrap;
   letter-spacing: var(--od-display-tracking, -0.02em);
   text-align: center;
   /* Mixed case in the design — "Best sellers", not "BEST SELLERS". */
@@ -48,18 +51,24 @@
   width: 100%;
 }
 
-/* The two faces from the design. Both inherit the fill from the heading, so the
-   image runs across the whole line rather than restarting per word. */
+/*
+  The three faces from the file. All inherit the fill from the heading, so the
+  image runs continuously across the line rather than restarting per word.
+*/
+.od-display__part--swash {
+  font-family: var(--od-font-swash);
+  font-style: normal;
+  font-weight: 400;
+}
+
 .od-display__part--script {
-  font-family: var(--od-display-script, var(--od-font-script));
+  font-family: var(--od-font-display);
   font-style: italic;
   font-weight: 400;
-  /* The swash capital in the design overhangs to the left of the line. */
-  letter-spacing: -0.01em;
 }
 
 .od-display__part--roman {
-  font-family: var(--od-display-roman, var(--od-font-display));
+  font-family: var(--od-font-display);
   font-style: normal;
   font-weight: 400;
 }
@@ -170,7 +179,7 @@
 /* Responsive ------------------------------------------------------------- */
 @media screen and (max-width: 989px) {
   .od-display {
-    padding-inline: var(--od-gutter-tablet);
+    padding-inline: var(--od-gutter-mobile);
   }
 }
 
@@ -180,9 +189,12 @@
   }
 
   .od-display__text {
-    /* The vw-based size gets small enough to lose the effect on a phone;
-       hold a floor so the fill is still readable through the letters. */
-    font-size: max(var(--od-display-size, 13vw), 44px);
-    line-height: 0.98;
+    /*
+      21vw on a 390px phone is 82px — the line still fits and the fill still
+      reads, so the size holds rather than being floored. Wrapping is allowed
+      here because a nowrap line at a phone width would overflow the viewport.
+    */
+    white-space: normal;
+    line-height: 1.05;
   }
 }

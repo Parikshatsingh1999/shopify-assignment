@@ -1,39 +1,61 @@
 /*
-  od-drop-teaser.css · Test 1 — Drop teaser (1440 × 567, two panels)
+  od-drop-teaser.css · Test 1 — Drop teaser
 
-  Two panels side by side on desktop, stacked on mobile with the countdown
-  staying above the fold of the section. The split ratio and the height floor are
-  merchant settings, so nothing here hardcodes 50/50.
+  From the Figma (node 917:1265):
+
+    section  1440 × 567, 24px padding
+    panels   692 × 519 each, 8px apart, 4px radius  — inset cards, NOT
+             full-bleed halves, which is what the 24px padding buys
+    left     #421802, 20px padding, centred, 48px between the headline block
+             and the countdown, 24px inside the headline block
+    tiles    46.5 wide, px13.3 py19.9, radius 3.3, white @85% + blur,
+             Inter Bold 19.93/1.2 in #421802, tracking -0.4
+    sep      two 4px white squares, 8px apart
+    labels   La Belle Aurore 24/1.2 white, tracking -0.48
+    right    #fffbf8, 1px rgba(66,24,2,.1), 24px padding, space-between
+    image    644/365 aspect, 10% black overlay, caption inset 15/18/20
+    caption  Instrument Serif Italic 72/1.2 white, tracking -2.16
+    form     rule under both input and button in #421802;
+             placeholder Inter 11px #75462d; action Inter SemiBold 16 caps #421802
+
+  The panel height is derived from the artboard ratio rather than stored as a
+  number, so 567 stays exact at 1440 and scales with the canvas.
 */
 
 .od-teaser {
+  padding: var(--od-teaser-pad, 24px);
+  background: var(--od-paper);
+  font-family: var(--od-font-body);
+}
+
+.od-teaser__panels {
   display: grid;
   grid-template-columns: var(--od-teaser-split, 50%) 1fr;
+  gap: var(--od-teaser-gap, 8px);
   /*
-    567px at the 1440 artboard, kept exact by deriving it from the design ratio
-    rather than storing it as a number a merchant could knock off by a pixel.
-    The band scales with the canvas like the hero, and the merchant's floor stops
-    it collapsing on short windows. max() means content can always grow it, so
-    a long headline or a wrapped form never overflows.
+    519px at the 1440 artboard, derived from the ratio so it stays exact there
+    and scales with the canvas. The merchant's floor stops it collapsing on a
+    short window, and max() lets content grow it — a long headline or a wrapped
+    form can never overflow.
   */
-  min-height: max(var(--od-teaser-floor, 420px), calc(100vw * 567 / 1440));
-  width: 100%;
-  font-family: var(--od-font-body);
+  min-height: max(var(--od-teaser-floor, 420px), calc((100vw - var(--od-teaser-pad, 24px) * 2) * 519 / 1392));
 }
 
 .od-teaser__panel {
   position: relative;
   display: flex;
   overflow: hidden;
+  border-radius: 4px;
 }
 
 /* ── Left panel ─────────────────────────────────────────────────────────── */
 
 .od-teaser__panel--left {
-  background-color: var(--od-teaser-left-bg, #f3ece2);
-  color: var(--od-teaser-left-ink, #111);
+  background-color: var(--od-teaser-left-bg, var(--od-brown));
+  color: var(--od-teaser-left-ink, #fff);
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .od-teaser__pattern {
@@ -51,10 +73,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(16px, 2.2vw, 28px);
-  padding: clamp(40px, 5vw, 72px) clamp(24px, 4vw, 64px);
+  /* 48px between the headline block and the countdown, as drawn. */
+  gap: clamp(24px, 3.4vw, 48px);
   text-align: center;
-  max-width: 560px;
+  width: 100%;
 }
 
 .od-teaser__eyebrow {
@@ -66,13 +88,20 @@
   opacity: 0.7;
 }
 
+/* Script headline — La Belle Aurore 40/40 in the design. */
 .od-teaser__script {
   margin: 0;
-  font-family: var(--od-teaser-script, var(--od-font-script));
-  font-size: clamp(40px, 5.2vw, 76px);
+  font-family: var(--od-font-script);
+  font-size: clamp(28px, 2.8vw, 40px);
   font-weight: 400;
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: 0;
+}
+
+/* The merchant can drop the bundled script face for the theme's own heading. */
+.od-teaser--script-theme .od-teaser__script,
+.od-teaser--script-theme .od-countdown__label {
+  font-family: var(--font-heading-family, var(--od-font-display));
 }
 
 .od-teaser__left-body {
@@ -104,57 +133,69 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: clamp(8px, 1.2vw, 18px);
+  gap: 4px;
 }
 
 .od-countdown__unit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
 }
 
 .od-countdown__tiles {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
-/* One tile per digit, as drawn in the Figma. */
+/* One tile per digit. Translucent white over the pattern, as drawn — the blur
+   is what keeps the digits readable where a bow passes behind them. */
 .od-countdown__tile {
   display: grid;
   place-items: center;
-  min-width: clamp(30px, 2.9vw, 42px);
-  padding: clamp(8px, 1.1vw, 15px) 4px;
-  border-radius: 3px;
+  width: clamp(34px, 3.2vw, 46.5px);
+  padding: clamp(12px, 1.4vw, 19.93px) 0;
+  border-radius: 3.32px;
   background: var(--od-teaser-tile-bg, #fff);
-  color: var(--od-teaser-tile-ink, #111);
-  font-family: var(--od-font-display);
-  font-size: clamp(24px, 2.6vw, 40px);
+  /* The design's tile is white at 85%; a merchant-set solid colour overrides it. */
+  opacity: 0.999;
+  backdrop-filter: blur(6px);
+  color: var(--od-teaser-tile-ink, var(--od-brown));
+  font-family: var(--od-font-ui);
+  font-size: clamp(15px, 1.4vw, 19.93px);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  line-height: 1;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
+/* Label — La Belle Aurore 24px in the design, sentence case, no tracking. */
 .od-countdown__label {
-  /* Set in the script face in the design, sentence case, no tracking. */
-  font-family: var(--od-teaser-script, var(--od-font-script));
-  font-size: clamp(13px, 1.1vw, 16px);
+  font-family: var(--od-font-script);
+  font-size: clamp(16px, 1.7vw, 24px);
   font-weight: 400;
-  line-height: 1;
-  opacity: 0.9;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  opacity: 1;
 }
 
+/* The separator is two small squares, not a colon glyph. */
 .od-countdown__sep {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   align-self: flex-start;
-  padding-top: clamp(8px, 1vw, 14px);
-  font-family: var(--od-font-display);
-  font-size: clamp(20px, 2.2vw, 32px);
-  line-height: 1;
-  opacity: 0.35;
+  margin-top: clamp(16px, 1.9vw, 26px);
 }
 
-/* The flip is a 120ms nudge, not a carousel — enough to register a change. */
+.od-countdown__sep i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+}
+
+/* The flip is a short nudge, not a carousel — enough to register a change. */
 @media (prefers-reduced-motion: no-preference) {
   .od-countdown__tile--flip {
     animation: od-tile-flip 220ms var(--od-ease);
@@ -176,21 +217,27 @@
 
 .od-teaser__panel--right {
   flex-direction: column;
-  /* Cream, not white — the design's right panel is a shade warmer than the page. */
+  justify-content: space-between;
   background: var(--od-teaser-right-bg, var(--od-cream));
-  color: var(--od-ink);
-  /* The image is inset on all sides, so the panel colour frames it. */
-  padding: clamp(14px, 1.6vw, 22px);
+  border: 1px solid rgba(66, 24, 2, 0.1);
+  color: var(--od-brown);
+  padding: 24px;
 }
 
 .od-teaser__card {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
+  aspect-ratio: 644 / 365;
+  width: 100%;
+  flex: 0 0 auto;
   overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 20px 18px 15px;
 }
 
 .od-teaser__card-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -201,7 +248,6 @@
   display: grid;
   place-items: center;
   background: #efefef;
-  min-height: 240px;
 }
 
 .od-teaser__placeholder-svg {
@@ -210,86 +256,97 @@
   fill: rgba(0, 0, 0, 0.12);
 }
 
-.od-teaser__caption {
+/* A flat 10% wash, as in the design — enough to hold the caption without
+   dulling the photograph. */
+.od-teaser__card::after {
+  content: '';
   position: absolute;
-  left: clamp(20px, 2.6vw, 40px);
-  bottom: clamp(20px, 2.6vw, 40px);
-  margin: 0;
-  max-width: 70%;
-  /* An italic serif in the design, not the script face used on the left panel. */
-  font-family: var(--od-font-display);
-  font-style: italic;
-  font-size: clamp(26px, 2.9vw, 44px);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  color: #fff;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.32);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
 }
 
-/* ── Email capture ──────────────────────────────────────────────────────
-   Drawn as a small label over a single underlined row: borderless input on the
-   left, the action as bold uppercase text on the right. No boxes, no pills. */
+/* Caption — Instrument Serif Italic 72px, bottom-left inside the image. */
+.od-teaser__caption {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 100%;
+  font-family: var(--od-font-display);
+  font-style: italic;
+  font-size: clamp(32px, 5vw, 72px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* ── Email capture ──────────────────────────────────────────────────────—
+   A label over a single rule that runs under both the input and the action, as
+   drawn. No boxes, no pills. */
 
 .od-teaser__signup {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: clamp(14px, 1.8vw, 24px) 0 0;
+  padding-top: 24px;
 }
 
 .od-teaser__signup-label {
+  font-family: var(--od-font-ui);
   font-size: 13px;
   font-weight: 400;
-  line-height: 1.3;
-  color: var(--od-ink);
+  line-height: 1.4;
+  color: var(--od-brown);
 }
 
 .od-teaser__signup-body {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--od-ink-muted);
+  font-family: var(--od-font-ui);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--od-brown-soft);
 }
 
-.od-teaser__form {
-  margin: 0;
-}
-
-/* The rule under the row belongs to the row, not to the input — so it spans the
-   button as well, the way the design draws it. */
+/*
+  The rule belongs to the row, not to the input, so it spans the action too —
+  which is how the design draws it. Focus thickens the rule and trims the
+  padding by the same pixel, so the row height never shifts.
+*/
 .od-teaser__field {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--od-ink);
+  align-items: flex-end;
+  gap: 0;
+  border-bottom: 1px solid var(--od-brown);
 }
 
 .od-teaser__input {
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 28px;
-  padding: 0;
+  padding: 12px 16px 12px 0;
   border: 0;
   background: none;
-  color: var(--od-ink);
-  font-family: inherit;
-  font-size: 13px;
+  color: var(--od-brown);
+  font-family: var(--od-font-ui);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .od-teaser__input:focus {
-  outline: none; /* the row's underline thickens instead — see below */
+  outline: none;
 }
 
 .od-teaser__field:focus-within {
   border-bottom-width: 2px;
-  padding-bottom: 7px; /* hold the row height so nothing shifts */
+}
+
+.od-teaser__field:focus-within .od-teaser__input {
+  padding-bottom: 11px;
 }
 
 .od-teaser__input::placeholder {
-  color: var(--od-ink-muted);
+  color: var(--od-brown-soft);
 }
 
 .od-teaser__input[aria-invalid='true'] {
@@ -298,14 +355,15 @@
 
 .od-teaser__submit {
   flex: 0 0 auto;
-  padding: 0;
+  padding: 16px 0 16px 32px;
   border: 0;
   background: none;
-  color: var(--od-ink);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--od-tracking-wide);
+  color: var(--od-brown);
+  font-family: var(--od-font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity var(--od-duration) var(--od-ease);
@@ -317,6 +375,7 @@
 
 .od-teaser__state {
   margin: 8px 0 0;
+  font-family: var(--od-font-ui);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -336,38 +395,51 @@
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
 @media screen and (max-width: 989px) {
-  .od-teaser {
-    /* Below the desktop breakpoint the two panels stop reading as a pair at
-       50/50 — the countdown gets cramped first, so it takes the full width.
-       Stacked, the design ratio no longer applies: each panel sizes to its own
-       content above the merchant's floor. */
+  .od-teaser__panels {
+    /* Below the desktop breakpoint the panels stop reading as a pair at 50/50 —
+       the countdown is the first thing to get cramped, so it takes the full
+       width and the pair becomes a stack. */
     grid-template-columns: 1fr;
-    min-height: var(--od-teaser-floor, 420px);
+    min-height: 0;
   }
 
   .od-teaser__panel--left {
     min-height: 380px;
-  }
-
-  .od-teaser__card {
-    aspect-ratio: 3 / 2;
-    flex: 0 0 auto;
+    padding: 32px 20px;
   }
 }
 
 @media screen and (max-width: 749px) {
+  .od-teaser {
+    padding: var(--od-gutter-mobile);
+  }
+
+  .od-teaser__panel--right {
+    padding: 16px;
+  }
+
+  .od-teaser__card {
+    /* 644/365 is very wide for a phone; squarer keeps the subject readable. */
+    aspect-ratio: 4 / 3;
+    padding: 0 16px 14px 12px;
+  }
+
   .od-countdown__units {
-    gap: 6px;
+    gap: 2px;
+  }
+
+  .od-countdown__unit {
+    gap: 10px;
   }
 
   .od-countdown__sep {
-    display: none; /* the tile groups and labels already separate the units */
+    /* The tile groups and their labels already separate the units. */
+    display: none;
   }
 
-  /* The underlined row survives phone width: the input shrinks, the action
-     keeps its text width. Stacking it would lose the drawn treatment for no
-     gain. */
-  .od-teaser__field {
-    gap: 10px;
+  /* The rule survives phone width: the input shrinks, the action keeps its text
+     width. Stacking would lose the drawn treatment for no gain. */
+  .od-teaser__submit {
+    padding-left: 16px;
   }
 }

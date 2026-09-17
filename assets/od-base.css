@@ -26,19 +26,37 @@
   --od-line: #e4e4e4;
   --od-accent: #111111;
 
-  --od-aqua: #aafff9;    /* hero CTA fill */
-  --od-brown: #441805;   /* drop teaser, left panel */
-  --od-cream: #fffbf8;   /* drop teaser, right panel */
-  --od-tile: #e4dcd9;    /* countdown digit tiles */
-  --od-sale: #b3261e;          /* Clearance badge */
-  --od-final-sale: #111111;    /* Final Sale badge */
+  --od-aqua: #b3fff9;        /* hero CTA fill */
+  --od-aqua-ink: #011f13;    /* hero CTA label */
+  --od-brown: #421802;       /* drop teaser panel, countdown digits, form rules */
+  --od-brown-soft: #75462d;  /* placeholder text on the cream panel */
+  --od-cream: #fffbf8;       /* drop teaser, right panel */
+  --od-tile: rgba(255, 255, 255, 0.85);  /* countdown digit tiles */
+  --od-clearance: #940202;   /* Clearance line on the product card */
+  --od-sale: #940202;          /* sale / error red */
   --od-focus: #005bd3;         /* Shopify admin focus blue, high contrast on both themes */
 
   /* Type ---------------------------------------------------------------- */
-  --od-font-display: var(--font-heading-family, 'Helvetica Neue', Helvetica, Arial, sans-serif);
+  /*
+    The Figma uses five faces. Four are Google Fonts under the SIL Open Font
+    License, so they are licensed for web use and self-hosted in assets/ rather
+    than substituted — see snippets/od-fonts.liquid and the README.
+
+      La Belle Aurore   script headline, countdown labels
+      Pinyon Script     the swash capital, the watermark letter
+      Instrument Serif  display text, the "Sneak peek" caption
+      Inter             countdown digits, newsletter form
+      Helvetica         product card copy  (system face, no download needed)
+
+    Each stack falls through to a system face, so the sections stay readable if
+    a font file is missing.
+  */
   --od-font-body: var(--font-body-family, 'Helvetica Neue', Helvetica, Arial, sans-serif);
-  /* Script face is set per-section from a font_picker setting; this is the fallback. */
-  --od-font-script: 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive;
+  --od-font-display: 'Instrument Serif', 'Times New Roman', Times, serif;
+  --od-font-script: 'La Belle Aurore', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --od-font-swash: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --od-font-ui: 'Inter', var(--od-font-body);
+  --od-font-vendor: 'Roboto', var(--od-font-body);
 
   --od-tracking-wide: 0.08em;
   --od-tracking-wider: 0.16em;

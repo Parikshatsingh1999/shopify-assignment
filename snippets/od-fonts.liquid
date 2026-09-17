@@ -1,0 +1,73 @@
+{% comment %}
+  od-fonts
+  The typefaces the Figma specifies, self-hosted.
+
+  Rendered by the sections that need them, so a page without those sections
+  never downloads the files.
+
+  Why self-hosted rather than substituted:
+  the design's faces are La Belle Aurore, Pinyon Script, Instrument Serif, Inter,
+  Helvetica and Roboto. All four of the first group are Google Fonts released
+  under the SIL Open Font License, which permits web use — so the brief's
+  "substitute the closest reasonable alternative" case doesn't arise for them.
+  Inter and Roboto are in Shopify's own font library and Helvetica is a system
+  face, so those three are picked up from the stacks in od-base.css and need no
+  download.
+
+  Why self-hosted rather than linked from Google:
+  a <link> to fonts.googleapis.com is a third-party request on every page load,
+  an extra DNS lookup and connection before any text can paint. Serving from the
+  theme's own assets keeps it on one connection Shopify already has open.
+
+  Files this expects in assets/ (woff2 only — every browser that matters has
+  supported it for years, and woff2 is ~30% smaller than woff):
+
+    LaBelleAurore-Regular.woff2
+    PinyonScript-Regular.woff2
+    InstrumentSerif-Regular.woff2
+    InstrumentSerif-Italic.woff2
+
+  If a file is absent the @font-face simply fails and the stack in od-base.css
+  falls through to a system face — the text never disappears.
+
+  Usage:
+    {% render 'od-fonts' %}
+{% endcomment %}
+
+{%- capture od_font_faces -%}
+  @font-face {
+    font-family: 'La Belle Aurore';
+    src: url({{ 'LaBelleAurore-Regular.woff2' | asset_url }}) format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    /* swap: show the fallback immediately rather than holding the headline
+       invisible while the script face downloads. */
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Pinyon Script';
+    src: url({{ 'PinyonScript-Regular.woff2' | asset_url }}) format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Instrument Serif';
+    src: url({{ 'InstrumentSerif-Regular.woff2' | asset_url }}) format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Instrument Serif';
+    src: url({{ 'InstrumentSerif-Italic.woff2' | asset_url }}) format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+{%- endcapture -%}
+
+<style>{{ od_font_faces | strip_newlines }}</style>

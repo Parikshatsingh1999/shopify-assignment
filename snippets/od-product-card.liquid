@@ -10,7 +10,7 @@
   Accepts:
   - product            {Product}  required
   - card_id            {String}   unique id fragment (section id + index) — required for a11y ids
-  - image_ratio        {String}   e.g. '214 / 316'. Default '214 / 316' (the design)
+  - image_ratio        {String}   e.g. '214 / 320'. Default '214 / 320' (the design)
   - swatch_limit       {Number}   how many swatches fit before the overflow chip. Default 4
   - colour_option_name {String}   which option holds colours. Default 'Color'
   - secondary_source   {String}   'type' | 'vendor' | 'first_tag' | 'none'. Default 'type'
@@ -19,12 +19,18 @@
   - final_sale_tag     {String}   tag that flags Final Sale. Default 'final-sale'
   - lazy               {Boolean}  lazy-load the image. Default true
 
+  Geometry from the Figma (node 1:200):
+    card     214 x 415
+    image    214 x 320
+    controls 198 wide, 8px inset each side, sitting 8px above the image bottom
+    content  10px sides, 10px top, 16px bottom, 8px between rows
+
   Usage:
     {% render 'od-product-card', product: product, card_id: card_id, swatch_limit: 4 %}
 {% endcomment %}
 
 {%- liquid
-  assign image_ratio = image_ratio | default: '214 / 316'
+  assign image_ratio = image_ratio | default: '214 / 320'
   assign swatch_limit = swatch_limit | default: 4
   assign colour_option_name = colour_option_name | default: 'Color'
   assign secondary_source = secondary_source | default: 'type'
@@ -193,24 +199,30 @@
       {%- endif -%}
     </a>
 
-    {%- comment -%} ── Badges ──────────────────────────────────────────── {%- endcomment -%}
-    <div class="od-card__badges">
-      <span
-        class="od-card__badge od-card__badge--clearance"
-        data-od-badge-clearance
-        {% unless on_sale %}hidden{% endunless %}
-      >{{ 'od.card.clearance' | t }}</span>
+    {%- comment -%}
+      ── Final Sale ──
+      A white pill at the image's top-left (8, 8 in the design) with 12px black
+      text. Driven by a merchant-named product tag.
 
-      {%- if is_final_sale -%}
-        <span class="od-card__badge od-card__badge--final">{{ 'od.card.final_sale' | t }}</span>
-      {%- endif -%}
+      Clearance is NOT here: in the design it is a line of dark red text inside
+      the text block, above the title. It lives in the body below.
+    {%- endcomment -%}
+    {%- if is_final_sale -%}
+      <span class="od-card__final-sale">{{ 'od.card.final_sale' | t }}</span>
+    {%- endif -%}
 
-      {%- unless product.available -%}
-        <span class="od-card__badge od-card__badge--sold-out">{{ 'od.card.sold_out' | t }}</span>
-      {%- endunless -%}
-    </div>
+    {%- unless product.available -%}
+      <span class="od-card__sold-out">{{ 'od.card.sold_out' | t }}</span>
+    {%- endunless -%}
 
-    {%- comment -%} ── Colour swatches ─────────────────────────────────── {%- endcomment -%}
+    {%- comment -%}
+      ── Controls row ──
+      One row 8px in from both edges, sitting 8px above the image bottom, with
+      the swatch pill and the quick-add button pushed to opposite ends. Laying
+      these out as a single row (rather than positioning each independently) is
+      what keeps them on a shared baseline at every card width.
+    {%- endcomment -%}
+    <div class="od-card__controls">
     {%- if has_swatches -%}
       {%- assign total_colours = colour_option.values.size -%}
       <div
@@ -270,12 +282,20 @@
         {%- endfor -%}
 
         {%- if total_colours > swatch_limit -%}
-          {%- assign overflow_count = total_colours | minus: swatch_limit -%}
+          {%- comment -%}
+            The design's last slot is a plus glyph. It links to the product page
+            where every colour is available, and its accessible name carries the
+            count that the glyph alone cannot.
+          {%- endcomment -%}
           <a
             class="od-card__swatch-more"
             href="{{ product.url }}"
             aria-label="{{ 'od.card.view_all_colours' | t: count: total_colours }}"
-          >+{{ overflow_count }}</a>
+          >
+            <svg viewBox="0 0 14 14" width="13" height="13" focusable="false" aria-hidden="true">
+              <path d="M7 1.6v10.8M1.6 7h10.8" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </a>
         {%- endif -%}
       </div>
     {%- endif -%}
@@ -317,26 +337,45 @@
         <p class="od-card__quick-add-error" data-od-quick-add-error role="alert" hidden></p>
       </od-quick-add>
     {%- endif -%}
+    </div>
   </div>
 
   <div class="od-card__body">
-    <h3 class="od-card__title">
-      <a class="od-card__title-link" href="{{ current.url | default: product.url }}" data-od-card-title-link>
-        {{ product.title }}
-      </a>
-    </h3>
+    {%- comment -%}
+      ── Clearance ──
+      Not a badge in the design: a line of dark red text above the title, inside
+      the text block. It follows the SELECTED variant's compare-at price, so
+      switching to a full-price colour clears it.
+    {%- endcomment -%}
+    <p
+      class="od-card__clearance"
+      data-od-badge-clearance
+      {% unless on_sale %}hidden{% endunless %}
+    >{{ 'od.card.clearance' | t }}</p>
+
+    {%- comment -%}
+      Title and vendor share a row, as drawn: the title takes the space and
+      ellipsises, the vendor holds its width at the end.
+    {%- endcomment -%}
+    <div class="od-card__title-row">
+      <h3 class="od-card__title">
+        <a class="od-card__title-link" href="{{ current.url | default: product.url }}" data-od-card-title-link>
+          {{ product.title }}
+        </a>
+      </h3>
+
+      {%- if show_vendor and product.vendor != blank -%}
+        <p class="od-card__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+    </div>
 
     {%- if secondary_line != blank -%}
       <p class="od-card__secondary">{{ secondary_line }}</p>
     {%- endif -%}
 
-    {%- if show_vendor and product.vendor != blank -%}
-      <p class="od-card__vendor">{{ product.vendor }}</p>
-    {%- endif -%}
-
     <div class="od-card__price" data-od-price>
       <span class="od-visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
-      <span class="od-card__price-current{% if on_sale %} od-card__price-current--sale{% endif %}" data-od-price-current>
+      <span class="od-card__price-current" data-od-price-current>
         {{ current.price | money }}
       </span>
       <s class="od-card__price-was" data-od-price-was {% unless on_sale %}hidden{% endunless %}>

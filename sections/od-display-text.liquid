@@ -21,6 +21,7 @@
 
 {{ 'od-base.css' | asset_url | stylesheet_tag }}
 {{ 'od-display-text.css' | asset_url | stylesheet_tag }}
+{% render 'od-fonts' %}
 
 {%- liquid
   assign s = section.settings
@@ -52,8 +53,7 @@
     --od-display-blend: {{ knockout_blend }};
     --od-display-fallback-ink: {{ s.fallback_text_color }};
     --od-display-size: {{ s.text_size }};
-    --od-display-script: {{ s.script_font.family }}, {{ s.script_font.fallback_families }};
-    --od-display-roman: {{ s.roman_font.family }}, {{ s.roman_font.fallback_families }};
+
     --od-display-padding: {{ s.vertical_padding }}px;
     --od-display-tracking: {{ s.letter_spacing | divided_by: 100.0 }}em;
     {%- if s.fill_image != blank -%}
@@ -95,20 +95,29 @@
   {%- endif -%}
 
   {%- comment -%}
-    The design sets the two words differently — an italic script with a swash
-    capital, then an upright serif — on one line. Two spans rather than two
-    headings, so it stays a single heading in the document outline and the fill
-    runs continuously across both words (background-clip clips to the element's
-    text including its inline children).
+    Three faces on one line, exactly as the file sets it (node 917:881):
+      "B"       Pinyon Script Regular      300px, tracking -9
+      "est"     Instrument Serif Italic    300px, tracking -9
+      "sellers" Instrument Serif Regular   300px, tracking -9
+
+    Spans inside a single heading, not three headings: the document outline stays
+    correct and the fill runs continuously across the whole line, because
+    background-clip clips to the element's text including its inline children.
+
+    Splitting the swash capital off as its own setting rather than slicing the
+    first character in Liquid keeps it right under translation — the first letter
+    of the translated word is not always the one that should carry the swash.
   {%- endcomment -%}
   <div class="od-display__knockout">
     <{{ heading_tag }} class="od-display__text">
+      {%- if s.text_swash != blank -%}
+        <span class="od-display__part od-display__part--swash">{{ s.text_swash | escape }}</span>
+      {%- endif -%}
       {%- if s.text_script != blank -%}
         <span class="od-display__part od-display__part--script">{{ s.text_script | escape }}</span>
       {%- endif -%}
-      {%- if s.text_script != blank and s.text_roman != blank %} {% endif -%}
       {%- if s.text_roman != blank -%}
-        <span class="od-display__part od-display__part--roman">{{ s.text_roman | escape }}</span>
+        <span class="od-display__part od-display__part--roman"> {{ s.text_roman | escape }}</span>
       {%- endif -%}
     </{{ heading_tag }}>
   </div>
@@ -128,29 +137,24 @@
     { "type": "header", "content": "Text" },
     {
       "type": "text",
+      "id": "text_swash",
+      "label": "Opening letter",
+      "default": "B",
+      "info": "Set in the swash script face. Leave empty to skip it."
+    },
+    {
+      "type": "text",
       "id": "text_script",
-      "label": "First word",
-      "default": "Best",
-      "info": "Set in the script face. Stays real text, so it can be translated and selected."
+      "label": "Rest of the first word",
+      "default": "est",
+      "info": "Set in the italic serif."
     },
     {
       "type": "text",
       "id": "text_roman",
-      "label": "Rest of the line",
+      "label": "Remaining words",
       "default": "sellers",
-      "info": "Set in the plain face."
-    },
-    {
-      "type": "font_picker",
-      "id": "script_font",
-      "label": "Script face",
-      "default": "assistant_n4"
-    },
-    {
-      "type": "font_picker",
-      "id": "roman_font",
-      "label": "Plain face",
-      "default": "assistant_n4"
+      "info": "Set in the upright serif."
     },
     {
       "type": "select",
@@ -167,14 +171,14 @@
       "type": "range",
       "id": "text_size",
       "label": "Text size",
-      "min": 6, "max": 22, "step": 0.5, "unit": "vw", "default": 13,
+      "min": 6, "max": 22, "step": 0.5, "unit": "vw", "default": 21,
       "info": "Measured against the window width so the words keep filling the space at any size."
     },
     {
       "type": "range",
       "id": "letter_spacing",
       "label": "Letter spacing",
-      "min": -6, "max": 20, "step": 1, "unit": "%", "default": -2,
+      "min": -6, "max": 20, "step": 1, "unit": "%", "default": -3,
       "info": "Tightens or loosens the gaps between letters."
     },
 
@@ -209,14 +213,14 @@
       "type": "color",
       "id": "fallback_text_color",
       "label": "Text colour on older browsers",
-      "default": "#441805",
+      "default": "#421802",
       "info": "Used where the see-through effect is not supported, so the text is never invisible."
     },
     {
       "type": "range",
       "id": "vertical_padding",
       "label": "Space above and below",
-      "min": 0, "max": 160, "step": 4, "unit": "px", "default": 64
+      "min": 0, "max": 160, "step": 4, "unit": "px", "default": 24
     }
   ],
   "presets": [{ "name": "Display text" }]
