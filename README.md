@@ -69,6 +69,20 @@ The card is a **snippet, not a section**, and it reads nothing from `section` �
 arrives as an argument with a documented default. That is what makes it droppable into any
 grid: this repo's grid, Dawn's featured-collection, search results, related products.
 
+### Colour
+
+Sampled from the Figma and set as the defaults in `od-base.css`:
+
+| Token | Value | Where |
+|---|---|---|
+| `--od-aqua` | `#AAFFF9` | hero CTA fill |
+| `--od-brown` | `#441805` | drop teaser, left panel |
+| `--od-cream` | `#FFFBF8` | drop teaser, right panel |
+| `--od-tile` | `#E4DCD9` | countdown digit tiles |
+
+Each one is also a schema setting on the section that uses it, so these are the defaults
+rather than the only values — a merchant can re-skin a section without a developer.
+
 ### `bin/check-ranges.py`
 
 Shopify rejects a `range` setting whose default doesn't land exactly on a step, or whose
@@ -141,13 +155,28 @@ with individual digit tiles as drawn.
   sells), *keep the timer at all zeros*, or *hide the section entirely*. "Hide" is ignored inside
   the theme editor, where the merchant would otherwise lose the section they're editing.
 
-> **Flagged: the countdown labels.** The design labels four tile groups DAYS / HOURS /
-> MINUTES / SECONDS, but the tile groups as drawn don't line up with four two-digit units at
-> that width. I built the version that makes sense: four units, each two digits, labels as
-> **merchant settings**, and toggles for days and seconds. Turning days off rolls them into
-> hours (so a 3-day countdown reads 72 hours, not 0) rather than quietly under-reporting the
-> time left. Once the labels are settled, matching the design exactly is a copy change in
-> the editor, not a code change.
+> **Flagged: the countdown labels don't add up.** The design draws three groups of two
+> digits and labels them **Days / Hours / Seconds**. Minutes is missing.
+>
+> That can't be built as drawn. A timer that steps days → hours → seconds has a
+> sixty-to-one hole in the middle: the third group churns through 00–59 every minute while
+> the hours group sits still for an hour, so the shopper sees a number racing next to two
+> that look frozen, and the actual time remaining is unreadable. It also can't be a
+> *total* seconds count — two digits caps at 99.
+>
+> I read it as the third label being wrong, and built **Days / Hours / Minutes**: three
+> groups, two digits each, which is the drawn layout with the label that makes the timer
+> mean something. Minutes is the right granularity for a drop — seconds next to days is
+> noise.
+>
+> Every label is a merchant setting and seconds is a fourth group behind a toggle, so if
+> you did mean four groups, it's a checkbox and a copy change in the editor rather than a
+> code change. Turning days off rolls them into hours (a 3-day countdown reads 72 hours,
+> not 0) instead of quietly under-reporting the time left.
+
+> **Minor:** the right panel caption reads "Sneak peak..." in the file — "peek", unless the
+> pun is deliberate. It's a merchant setting either way; I've defaulted it to "Sneak peek...".
+
 
 **The email capture posts through Shopify's own `{% form 'customer' %}`**, tagged
 `newsletter`. Signups land in Customers in the admin — no app, no third-party endpoint, no
@@ -156,6 +185,12 @@ placeholder.
 - **Success state** renders from `form.posted_successfully?`. The form's `return_to` carries
   an anchor back to the section, so the shopper returns to the confirmation rather than the
   top of the page, and focus is moved to it so it's announced.
+- Drawn as a small label over a **single underlined row** — borderless input on the left,
+  the action as bold uppercase text on the right. No boxes, no pills. The rule belongs to
+  the row rather than the input, so it spans the button too, and focus thickens it while
+  holding the row height so nothing shifts.
+- "Get notified" is the input's own visible `<label>`, not a heading — it labels one field,
+  and making it an `h3` would put a form control in the page outline.
 - **Error state** has two sources feeding one node: Shopify's server-side `form.errors` on
   load, and client-side `checkValidity()` before submit — so an obvious typo costs no page
   load. The input gets `aria-invalid` and the message is a live `role="alert"`.
@@ -165,7 +200,13 @@ placeholder.
 **The text stays real text** — selectable, translatable, searchable, part of the document
 outline. No image of text, no SVG outlined glyphs.
 
-Two techniques, because one does not cover both media types:
+The design sets the two words differently — an italic script with a swash capital, then an
+upright serif, on one line. That's **two spans inside one heading**, each with its own
+`font_picker`, rather than two headings: the document outline stays correct and the fill
+runs continuously across both words, because `background-clip` clips to the element's text
+including its inline children.
+
+Two fill techniques, because one does not cover both media types:
 
 - **Image fill** — `background-clip: text` with the image as the heading's own background.
 - **Video fill** — `background-clip` cannot take a `<video>`. So the video sits behind an
@@ -188,6 +229,13 @@ something behind the letters.
 
 The card is **214 × 415 at the 1440 artboard**, which is what six columns with a 16px gap
 gives you at full width — so `columns_desktop: 6` is the default rather than a coincidence.
+Measured off the file, the image is **214 × 316** (`aspect-ratio: 214 / 316`), leaving 99px
+for the text block. Square corners, not rounded.
+
+The two controls over the image match the file: the swatches sit in a **white rounded pill**
+over the bottom-left with the overflow marker as its last slot, and quick add is a separate
+**white circle bottom-right carrying a shopping-bag glyph** — not a plus. The pill is what
+the dots sit on, which is what keeps them legible over any photograph.
 
 ### Colour swatches
 
@@ -202,8 +250,13 @@ gives you at full width — so `columns_desktop: 6` is the default rather than a
   id, colour, availability, url, price, compare-at, image. Not the whole variant object:
   twelve colours across forty products is a payload nobody needs.
 - **Overflow indicator.** Past the merchant's limit (default 4) the extra colours collapse
-  into a `+N` chip linking to the product page, so twelve colours occupy exactly as much
-  room as four and the row never wraps over the image.
+  into a chip in the pill's last slot, linking to the product page, so twelve colours occupy
+  exactly as much room as four and the row never wraps over the image.
+
+  *Flagged deviation:* the file draws a small neutral dot in that slot. A bare dot doesn't
+  say what it does, and the brief asks for an indicator, so mine carries the count — `+8` —
+  at the same footprint. Same silhouette in the pill, but it tells the shopper how many more
+  colours there are. Happy to swap it back to the plain dot if the dot was deliberate.
 - **A sold-out colour is still selectable** — a shopper may well want to look at it — but it
   is struck through, and selecting it disables quick add. Picking the variant to show for a
   colour prefers the first *available* one, so a partially sold-out colour isn't
@@ -308,19 +361,28 @@ filled in show an inline hint under `request.design_mode` rather than rendering 
 
 ## Fonts
 
-*To be completed against the Figma file — the exact families, any substitution and the reason
-for it will be recorded here before submission.*
+Every face in these sections is a **`font_picker` setting** — the script headline and labels
+on the drop teaser, and both faces on the display text. That means the font is served from
+Shopify's own font library rather than a hardcoded webfont, so there is no third-party font
+request on the page, the merchant can change it, and nothing is licensed into the repo.
+`od-base.css` carries a system-stack fallback for the script face.
 
-The script headline and the section fonts are **`font_picker` settings**, so the face is a
-merchant choice served from Shopify's own font library rather than a hardcoded webfont, and
-no third-party font request is added to the page. `od-base.css` carries a system-stack
-fallback for the script face.
+*Still to record here:* the exact families. I've matched the shapes from the file — an
+italic script for the drop teaser and the "Best" of the display text, an upright serif for
+"sellers" and the card copy, a geometric sans for the CTA and the Reviews tab — but reading
+a family name off a flattened export isn't reliable, and naming the wrong one is worse than
+naming none. Once I'm in the Figma file I'll list each family, whatever I substituted, and
+why. Where a face can't be licensed for web use the substitution will be the nearest
+equivalent in Shopify's library, chosen on x-height and contrast rather than by name.
 
 ## Where I pushed back
 
-- **The countdown labels** don't add up in the design (above). Built the version that makes
-  sense, made the labels merchant settings, flagged it rather than shipping something that
-  reads wrong.
+- **The countdown labels** are Days / Hours / Seconds in the file, with minutes missing.
+  Built Days / Hours / Minutes — the drawn layout with a label that makes the timer mean
+  something — put every label behind a setting, and flagged it rather than shipping a timer
+  that reads wrong.
+- **The overflow marker carries a count** (`+8`) where the file draws a plain dot, because a
+  dot doesn't tell the shopper anything. Same footprint, flagged, trivially reversible.
 - **"Hide the section at zero"** is offered but disabled inside the theme editor. Obeying it
   there would make the merchant's section vanish while they were editing it.
 - **Behaviour at zero is a setting, not a decision I made for you.** Three answers are
@@ -334,11 +396,17 @@ fallback for the script face.
 
 *Kept current deliberately — I'd rather tell you what isn't finished than have you find it.*
 
-- **Pixel-fidelity pass against the Figma.** The structure, states and behaviour are
-  complete, and every value the design controls is a token in `od-base.css` or a schema
-  setting. The exact type sizes, spacing, colours and the image/text proportions inside the
-  card still need to be read off the file and dialled in. Dimensions taken from the brief
-  (1440 × 810, 1440 × 567, 214 × 415, six columns at 16px) are in place; the card's 3:4
-  image ratio is an assumption and a merchant setting.
-- **Exported assets** (background image, pattern, headline artwork, card imagery) are not in
-  the repo yet — the sections render placeholders until they're uploaded.
+- **Type scale.** Colours, proportions, layout and every control's shape and position are
+  now taken from the design. What's still approximate is **type**: exact sizes, line heights
+  and the family names (above). The sizes are set as `clamp()` values anchored to the 1440
+  artboard, so correcting them is an edit to one declaration per element, not a re-layout.
+- **Exported assets** are not in the repo yet — the hero background and "Spring Break"
+  lettering, the left panel's line-art pattern, the right panel image, the display-text fill
+  and the card imagery. Every section renders a Shopify placeholder until they're uploaded,
+  so nothing breaks in the meantime, but the preview won't look like the design until they
+  are in. The headline lettering in particular is artwork, so it goes in through the
+  "Headline artwork" setting rather than being reproduced as live text.
+- **Measurements were taken from a flattened export**, not from the file itself. The ones I
+  could verify against the brief line up (the content column maps to 1440, and the hero
+  lands on 810), so I trust the proportions; single-pixel spacing values are the part I'd
+  re-check with the file open.
