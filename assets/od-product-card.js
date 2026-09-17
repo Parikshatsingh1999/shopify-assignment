@@ -263,13 +263,27 @@ class OdQuickAdd extends HTMLElement {
     }
   }
 
+  /**
+   * Whether the variant currently in the form can still be bought.
+   * Returning to the idle state must not re-enable the button for a sold-out
+   * variant just because an add succeeded or failed a moment ago.
+   */
+  currentVariantAvailable() {
+    const card = this.closest('[data-od-card]');
+    const input = this.querySelector('[data-od-variant-input]');
+    if (!card || !input) return true;
+
+    const variant = OdCard.data(card).find((v) => String(v.id) === String(input.value));
+    return variant ? variant.available : true;
+  }
+
   setState(state, message = '') {
     if (this.resetTimer) clearTimeout(this.resetTimer);
 
     const busy = state === 'busy';
 
     this.button.setAttribute('aria-busy', String(busy));
-    this.button.disabled = busy;
+    this.button.disabled = busy || !this.currentVariantAvailable();
 
     if (this.idleEl) this.idleEl.hidden = state !== 'idle';
     if (this.busyEl) this.busyEl.hidden = !busy;

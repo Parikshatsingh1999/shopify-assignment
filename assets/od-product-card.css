@@ -147,15 +147,35 @@
     0 0 0 3px var(--od-ink);
 }
 
+/*
+  Two swatch renderings share one look:
+  · .swatch          — Dawn's swatch snippet, driven by Shopify's swatch data
+  · .od-card__swatch-dot — the CSS-colour-keyword fallback
+
+  Dawn's own component-swatch.css is only loaded by its product and facet
+  sections, so this card cannot assume it is on the page. These rules are
+  self-sufficient, and they still win on specificity where that stylesheet *is*
+  loaded (a product page), so the swatch keeps the card's 16px size instead of
+  Dawn's 4.4rem.
+*/
+.od-card__swatch {
+  --swatch--size: 16px;
+  --swatch--border-radius: 50%;
+}
+
 .od-card__swatch-dot,
 .od-card__swatch .swatch {
   display: block;
   width: 16px;
   height: 16px;
+  border: 0;
   border-radius: 50%;
-  background-color: #ddd; /* shows through when the colour name isn't a CSS keyword */
+  /* --swatch--background is set inline by Dawn's swatch snippet, as a colour or
+     an image url. The fallback covers both "no swatch data" and a colour name
+     the browser doesn't recognise. */
+  background: var(--swatch--background, #ddd);
   background-size: cover;
-  background-position: center;
+  background-position: var(--swatch-focal-point, center);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
 }
 
