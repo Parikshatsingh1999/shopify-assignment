@@ -61,10 +61,44 @@
 .od-teaser__pattern {
   position: absolute;
   inset: 0;
-  background-repeat: repeat;
-  background-size: var(--od-teaser-pattern-size, 160px) auto;
   opacity: var(--od-teaser-pattern-opacity, 1);
   pointer-events: none;
+}
+
+/* The design's line art is one composed layer covering the panel. */
+.od-teaser__pattern--cover {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.od-teaser__pattern--tile {
+  background-repeat: repeat;
+  background-size: var(--od-teaser-pattern-size, 160px) auto;
+}
+
+/*
+  Watermark letter — real text in the bundled script face rather than an
+  exported image: no extra request, crisp at any size, and the merchant can
+  change the letter. Clipped by the panel's overflow, as in the design, where
+  the glyph runs well past the edges.
+*/
+.od-teaser__watermark {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--od-font-swash);
+  /* ~1161px against the 692px panel in the design — far taller than the panel,
+     which is what makes it read as texture rather than a letter. */
+  font-size: clamp(320px, 84vw, 1160px);
+  line-height: 1;
+  color: currentColor;
+  opacity: var(--od-watermark-opacity, 0.07);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
 }
 
 .od-teaser__left-content {

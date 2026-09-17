@@ -62,12 +62,32 @@
   <div class="od-teaser__panels">
   {%- comment -%} ── Left panel ─────────────────────────────────────────── {%- endcomment -%}
   <div class="od-teaser__panel od-teaser__panel--left">
+    {%- comment -%}
+      In the file the line art is one composed vector layer (730 x 583) covering
+      the panel, not a repeating motif — so "cover" is the default and tiling is
+      the option, rather than the other way round.
+    {%- endcomment -%}
     {%- if s.pattern_image != blank -%}
       <div
-        class="od-teaser__pattern"
+        class="od-teaser__pattern od-teaser__pattern--{{ s.pattern_fit }}"
         aria-hidden="true"
-        style="background-image: url({{ s.pattern_image | image_url: width: 600 }});"
+        style="background-image: url({{ s.pattern_image | image_url: width: 1400 }});"
       ></div>
+    {%- endif -%}
+
+    {%- comment -%}
+      ── Watermark letter ──
+      The design sets a single huge Pinyon Script glyph at 7% white behind the
+      content. Because that face is bundled, this is real text in CSS rather
+      than another image to export — it costs no request and stays crisp at any
+      size. Hidden from assistive tech: it is texture, not content.
+    {%- endcomment -%}
+    {%- if s.watermark_letter != blank -%}
+      <span
+        class="od-teaser__watermark"
+        aria-hidden="true"
+        style="--od-watermark-opacity: {{ s.watermark_opacity | divided_by: 100.0 }};"
+      >{{ s.watermark_letter | escape }}</span>
     {%- endif -%}
 
     <div class="od-teaser__left-content">
@@ -322,9 +342,33 @@
     { "type": "richtext", "id": "left_body", "label": "Supporting text" },
     { "type": "image_picker", "id": "pattern_image", "label": "Background pattern" },
     {
+      "type": "select",
+      "id": "pattern_fit",
+      "label": "How the pattern fills the panel",
+      "options": [
+        { "value": "cover", "label": "Fill the panel (matches the design)" },
+        { "value": "tile", "label": "Repeat as a tile" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "text",
+      "id": "watermark_letter",
+      "label": "Watermark letter",
+      "default": "A",
+      "info": "One large script letter behind the content, as in the design. Leave empty to remove it."
+    },
+    {
+      "type": "range",
+      "id": "watermark_opacity",
+      "label": "Watermark strength",
+      "min": 0, "max": 30, "step": 1, "unit": "%", "default": 7
+    },
+    {
       "type": "range",
       "id": "pattern_size",
       "label": "Pattern tile size",
+      "info": "Only used when the pattern repeats as a tile.",
       "min": 40, "max": 400, "step": 10, "unit": "px", "default": 160
     },
     {
