@@ -2,14 +2,21 @@
   od-drop-teaser.css · Test 1 — Drop teaser (1440 × 567, two panels)
 
   Two panels side by side on desktop, stacked on mobile with the countdown
-  staying above the fold of the section. The split ratio and panel height are
+  staying above the fold of the section. The split ratio and the height floor are
   merchant settings, so nothing here hardcodes 50/50.
 */
 
 .od-teaser {
   display: grid;
   grid-template-columns: var(--od-teaser-split, 50%) 1fr;
-  min-height: var(--od-teaser-height, 567px);
+  /*
+    567px at the 1440 artboard, kept exact by deriving it from the design ratio
+    rather than storing it as a number a merchant could knock off by a pixel.
+    The band scales with the canvas like the hero, and the merchant's floor stops
+    it collapsing on short windows. max() means content can always grow it, so
+    a long headline or a wrapped form never overflows.
+  */
+  min-height: max(var(--od-teaser-floor, 420px), calc(100vw * 567 / 1440));
   width: 100%;
   font-family: var(--od-font-body);
 }
@@ -295,9 +302,11 @@
 @media screen and (max-width: 989px) {
   .od-teaser {
     /* Below the desktop breakpoint the two panels stop reading as a pair at
-       50/50 — the countdown gets cramped first, so it takes the full width. */
+       50/50 — the countdown gets cramped first, so it takes the full width.
+       Stacked, the design ratio no longer applies: each panel sizes to its own
+       content above the merchant's floor. */
     grid-template-columns: 1fr;
-    min-height: 0;
+    min-height: var(--od-teaser-floor, 420px);
   }
 
   .od-teaser__panel--left {

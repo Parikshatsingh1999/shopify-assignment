@@ -35,6 +35,8 @@ sections/
   od-product-grid.liquid      Test 2 · the grid that renders the card
 snippets/
   od-product-card.liquid      Test 2 · the card itself
+bin/
+  check-ranges.py             pre-push validation of range settings (see below)
 assets/
   od-base.css                 shared design tokens + shared button
   od-hero.css
@@ -66,6 +68,20 @@ without stepping on each other:
 The card is a **snippet, not a section**, and it reads nothing from `section` — everything
 arrives as an argument with a documented default. That is what makes it droppable into any
 grid: this repo's grid, Dawn's featured-collection, search results, related products.
+
+### `bin/check-ranges.py`
+
+Shopify rejects a `range` setting whose default doesn't land exactly on a step, or whose
+range spans more than 101 steps. `shopify theme check` enforces neither, so both surface as
+an upload error mid-`theme dev` that names the setting but not the rule. I hit it once
+(`panel_height`), so it's a script now:
+
+```bash
+python3 bin/check-ranges.py    # non-zero exit on any violation
+```
+
+Worth having for the same reason as the prefix: with several people adding settings, the
+person who breaks it isn't necessarily the person who finds out.
 
 ---
 

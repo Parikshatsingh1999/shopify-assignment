@@ -35,7 +35,7 @@
   class="od-section od-teaser"
   id="od-teaser-{{ section.id }}"
   style="
-    --od-teaser-height: {{ s.panel_height }}px;
+    --od-teaser-floor: {{ s.min_panel_height }}px;
     --od-teaser-split: {{ s.split_ratio }}%;
     --od-teaser-left-bg: {{ s.left_background_color }};
     --od-teaser-left-ink: {{ s.left_text_color }};
@@ -326,9 +326,10 @@
     { "type": "header", "content": "Layout" },
     {
       "type": "range",
-      "id": "panel_height",
-      "label": "Panel height at full width",
-      "min": 360, "max": 800, "step": 10, "unit": "px", "default": 567
+      "id": "min_panel_height",
+      "label": "Smallest panel height",
+      "min": 300, "max": 800, "step": 10, "unit": "px", "default": 420,
+      "info": "The panels grow with the window and with their content. This is the floor they never go below."
     },
     {
       "type": "range",
