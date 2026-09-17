@@ -36,7 +36,7 @@
 <section
   class="od-section od-hero{% if s.text_shadow %} od-hero--shadowed{% endif %}"
   style="
-    --od-hero-ratio: {{ s.desktop_height }} / 1440;
+    --od-hero-ratio: 1440 / {{ s.desktop_height }};
     --od-hero-min-height: {{ s.mobile_min_height }}px;
     --od-hero-scrim: {{ s.overlay_opacity | times: 1.0 | divided_by: 100.0 }};
     --od-hero-text: {{ s.text_color }};

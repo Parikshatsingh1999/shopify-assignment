@@ -20,10 +20,15 @@
   assign s = section.settings
 
   # On a collection template the section defaults to the collection being
-  # viewed, so a merchant doesn't have to pick it twice.
+  # viewed, so a merchant doesn't have to pick it twice. With neither set it
+  # falls back to every product in the store, so the section shows something
+  # the moment it is added rather than an empty box the merchant has to debug.
   assign target = s.collection
   if target == blank and collection != blank
     assign target = collection
+  endif
+  if target == blank
+    assign target = collections.all
   endif
 
   assign products = target.products
@@ -101,7 +106,7 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection",
-      "info": "On a collection page, leave this empty to show the collection being viewed."
+      "info": "Leave empty to show the collection being viewed, or every product in the store."
     },
     {
       "type": "range",

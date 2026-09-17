@@ -238,6 +238,9 @@
 .od-card__quick-add {
   position: relative;
   flex: 0 0 auto;
+  /* Holds the right corner even when it is the only child — a single-colour
+     product has no swatch pill, and space-between would drop it to the left. */
+  margin-left: auto;
 }
 
 .od-card__quick-add-form {

@@ -91,6 +91,19 @@
   border-radius: 2px;
 }
 
+/*
+  [hidden] must win.
+  The UA stylesheet's `[hidden] { display: none }` is a single attribute
+  selector, so any class rule that sets `display` silently beats it — which had
+  the quick-add tick and spinner rendering next to the bag icon, and would have
+  shown the countdown's tiles after it expired. Scoped to this project's markup
+  rather than applied globally, so it can't surprise Dawn.
+*/
+.od-section [hidden],
+.od-card [hidden] {
+  display: none !important;
+}
+
 /* Screen-reader-only text. Dawn ships .visually-hidden; this is a local copy so
    the sections stay portable if they're lifted into a non-Dawn theme. */
 .od-visually-hidden {
