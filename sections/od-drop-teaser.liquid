@@ -44,6 +44,7 @@
     --od-teaser-script: {{ s.script_font.family }}, {{ s.script_font.fallback_families }};
     --od-teaser-tile-bg: {{ s.tile_background }};
     --od-teaser-tile-ink: {{ s.tile_text_color }};
+    --od-teaser-right-bg: {{ s.right_background_color }};
   "
 >
   {%- comment -%} ── Left panel ─────────────────────────────────────────── {%- endcomment -%}
@@ -174,13 +175,6 @@
     </div>
 
     <div class="od-teaser__signup" id="{{ form_id }}">
-      {%- if s.signup_heading != blank -%}
-        <h3 class="od-teaser__signup-heading">{{ s.signup_heading | escape }}</h3>
-      {%- endif -%}
-
-      {%- if s.signup_body != blank -%}
-        <p class="od-teaser__signup-body">{{ s.signup_body | escape }}</p>
-      {%- endif -%}
 
       {%- form 'customer', id: form_id, class: 'od-teaser__form', novalidate: 'novalidate' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
@@ -196,8 +190,20 @@
             <span aria-hidden="true">✓</span> {{ s.success_message | escape }}
           </p>
         {%- else -%}
+          {%- comment -%}
+            "Get notified" is the field's own visible <label>, not a heading —
+            it labels one input, and making it an h3 would put a heading in the
+            page outline for a form field.
+          {%- endcomment -%}
+          <label class="od-teaser__signup-label" for="{{ form_id }}-email">
+            {{ s.signup_heading | escape }}
+          </label>
+
+          {%- if s.signup_body != blank -%}
+            <p class="od-teaser__signup-body">{{ s.signup_body | escape }}</p>
+          {%- endif -%}
+
           <div class="od-teaser__field">
-            <label class="od-visually-hidden" for="{{ form_id }}-email">{{ s.email_label | escape }}</label>
             <input
               id="{{ form_id }}-email"
               type="email"
@@ -210,7 +216,7 @@
               class="od-teaser__input"
               {% if form.errors %}aria-invalid="true" aria-describedby="{{ form_id }}-error"{% endif %}
             >
-            <button type="submit" class="od-button od-teaser__submit">
+            <button type="submit" class="od-teaser__submit">
               {{ s.signup_button_label | escape }}
             </button>
           </div>
@@ -267,15 +273,21 @@
     { "type": "text", "id": "expired_link_label", "label": "Link label when it ends", "default": "Shop now" },
     { "type": "url", "id": "expired_link", "label": "Link when it ends" },
     { "type": "checkbox", "id": "show_days", "label": "Show days", "default": true },
-    { "type": "checkbox", "id": "show_seconds", "label": "Show seconds", "default": true },
+    {
+      "type": "checkbox",
+      "id": "show_seconds",
+      "label": "Show seconds",
+      "default": false,
+      "info": "The design shows three groups. Turning this on adds a fourth."
+    },
     { "type": "text", "id": "label_days", "label": "Label under days", "default": "Days" },
     { "type": "text", "id": "label_hours", "label": "Label under hours", "default": "Hours" },
     { "type": "text", "id": "label_minutes", "label": "Label under minutes", "default": "Minutes" },
     { "type": "text", "id": "label_seconds", "label": "Label under seconds", "default": "Seconds" },
 
     { "type": "header", "content": "Left panel" },
-    { "type": "text", "id": "eyebrow", "label": "Small line above the headline", "default": "Coming soon" },
-    { "type": "text", "id": "script_headline", "label": "Script headline", "default": "The Drop" },
+    { "type": "text", "id": "eyebrow", "label": "Small line above the headline" },
+    { "type": "text", "id": "script_headline", "label": "Script headline", "default": "New drop coming soon" },
     {
       "type": "font_picker",
       "id": "script_font",
@@ -296,18 +308,19 @@
       "label": "Pattern strength",
       "min": 5, "max": 100, "step": 5, "unit": "%", "default": 100
     },
-    { "type": "color", "id": "left_background_color", "label": "Left panel colour", "default": "#f3ece2" },
-    { "type": "color", "id": "left_text_color", "label": "Left panel text colour", "default": "#111111" },
-    { "type": "color", "id": "tile_background", "label": "Countdown tile colour", "default": "#ffffff" },
-    { "type": "color", "id": "tile_text_color", "label": "Countdown number colour", "default": "#111111" },
+    { "type": "color", "id": "left_background_color", "label": "Left panel colour", "default": "#441805" },
+    { "type": "color", "id": "left_text_color", "label": "Left panel text colour", "default": "#fffbf8" },
+    { "type": "color", "id": "tile_background", "label": "Countdown tile colour", "default": "#e4dcd9" },
+    { "type": "color", "id": "tile_text_color", "label": "Countdown number colour", "default": "#441805" },
 
     { "type": "header", "content": "Right panel" },
     { "type": "image_picker", "id": "card_image", "label": "Image" },
-    { "type": "text", "id": "card_caption", "label": "Caption over the image", "default": "Just landed" },
+    { "type": "text", "id": "card_caption", "label": "Caption over the image", "default": "Sneak peek..." },
+    { "type": "color", "id": "right_background_color", "label": "Right panel colour", "default": "#fffbf8" },
 
     { "type": "header", "content": "Email capture" },
-    { "type": "text", "id": "signup_heading", "label": "Heading", "default": "Get notified" },
-    { "type": "text", "id": "signup_body", "label": "Supporting line", "default": "Be first in line when it drops." },
+    { "type": "text", "id": "signup_heading", "label": "Label above the email field", "default": "Get notified" },
+    { "type": "text", "id": "signup_body", "label": "Supporting line" },
     { "type": "text", "id": "email_label", "label": "Email field placeholder", "default": "Email address" },
     { "type": "text", "id": "signup_button_label", "label": "Button label", "default": "Notify me" },
     {

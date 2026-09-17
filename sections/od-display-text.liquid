@@ -52,6 +52,8 @@
     --od-display-blend: {{ knockout_blend }};
     --od-display-fallback-ink: {{ s.fallback_text_color }};
     --od-display-size: {{ s.text_size }};
+    --od-display-script: {{ s.script_font.family }}, {{ s.script_font.fallback_families }};
+    --od-display-roman: {{ s.roman_font.family }}, {{ s.roman_font.fallback_families }};
     --od-display-padding: {{ s.vertical_padding }}px;
     --od-display-tracking: {{ s.letter_spacing | divided_by: 100.0 }}em;
     {%- if s.fill_image != blank -%}
@@ -92,9 +94,22 @@
     </div>
   {%- endif -%}
 
+  {%- comment -%}
+    The design sets the two words differently — an italic script with a swash
+    capital, then an upright serif — on one line. Two spans rather than two
+    headings, so it stays a single heading in the document outline and the fill
+    runs continuously across both words (background-clip clips to the element's
+    text including its inline children).
+  {%- endcomment -%}
   <div class="od-display__knockout">
     <{{ heading_tag }} class="od-display__text">
-      {{- s.text | escape | newline_to_br -}}
+      {%- if s.text_script != blank -%}
+        <span class="od-display__part od-display__part--script">{{ s.text_script | escape }}</span>
+      {%- endif -%}
+      {%- if s.text_script != blank and s.text_roman != blank %} {% endif -%}
+      {%- if s.text_roman != blank -%}
+        <span class="od-display__part od-display__part--roman">{{ s.text_roman | escape }}</span>
+      {%- endif -%}
     </{{ heading_tag }}>
   </div>
 
@@ -112,11 +127,30 @@
   "settings": [
     { "type": "header", "content": "Text" },
     {
-      "type": "textarea",
-      "id": "text",
-      "label": "Text",
-      "default": "Made to\nbe worn out",
-      "info": "Press Enter to start a new line. This stays as real text, so it can be translated and selected."
+      "type": "text",
+      "id": "text_script",
+      "label": "First word",
+      "default": "Best",
+      "info": "Set in the script face. Stays real text, so it can be translated and selected."
+    },
+    {
+      "type": "text",
+      "id": "text_roman",
+      "label": "Rest of the line",
+      "default": "sellers",
+      "info": "Set in the plain face."
+    },
+    {
+      "type": "font_picker",
+      "id": "script_font",
+      "label": "Script face",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "roman_font",
+      "label": "Plain face",
+      "default": "assistant_n4"
     },
     {
       "type": "select",
@@ -164,18 +198,18 @@
       "id": "surround_style",
       "label": "Background around the text",
       "options": [
-        { "value": "dark", "label": "Dark" },
-        { "value": "light", "label": "Light" }
+        { "value": "light", "label": "Light" },
+        { "value": "dark", "label": "Dark" }
       ],
-      "default": "dark",
+      "default": "light",
       "info": "Only affects the video fill. Pick the one that matches the background colour below."
     },
-    { "type": "color", "id": "surround_color", "label": "Background colour", "default": "#000000" },
+    { "type": "color", "id": "surround_color", "label": "Background colour", "default": "#ffffff" },
     {
       "type": "color",
       "id": "fallback_text_color",
       "label": "Text colour on older browsers",
-      "default": "#ffffff",
+      "default": "#441805",
       "info": "Used where the see-through effect is not supported, so the text is never invisible."
     },
     {

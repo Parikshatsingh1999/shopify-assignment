@@ -22,9 +22,9 @@
 
 .od-card__media {
   position: relative;
-  aspect-ratio: var(--od-card-ratio, 3 / 4);
+  aspect-ratio: var(--od-card-ratio, 214 / 316);
   overflow: hidden;
-  border-radius: var(--od-radius-tile);
+  border-radius: 0; /* square corners, as drawn */
   background: #f4f4f4;
 }
 
@@ -108,43 +108,49 @@
   box-shadow: inset 0 0 0 1px var(--od-line);
 }
 
-/* ── Swatches ───────────────────────────────────────────────────────────—
-   Overlaid on the image, as drawn. The row never wraps: the overflow chip
-   absorbs everything past the limit, so twelve colours take the same space as
-   four. */
+/* ── Swatches ────────────────────────────────────────────────────────────
+   Drawn as a white rounded pill sitting over the bottom-left of the image,
+   with the colour dots inside it and the overflow marker as the last slot.
+   The pill — not the card — is what the dots sit on, so the swatches stay
+   legible over any photograph. */
 
 .od-card__swatches {
   position: absolute;
   z-index: 2;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  display: flex;
+  left: 10px;
+  bottom: 10px;
+  /* Left-anchored, sized to its contents. Stretching it to the card's width
+     would put the overflow marker far from the dots it belongs to. */
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: var(--od-radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(2px);
   flex-wrap: nowrap;
+  max-width: calc(100% - 58px); /* leaves the quick-add circle its corner */
 }
 
 .od-card__swatch {
+  position: relative;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: none;
   cursor: pointer;
-  /* The ring sits outside the dot so the selected state doesn't change size. */
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
   transition: box-shadow var(--od-duration) var(--od-ease);
 }
 
+/* Selected: a ring drawn outside the dot, so selecting never changes its size
+   and the row never reflows as the shopper clicks along it. */
 .od-card__swatch[aria-checked='true'] {
-  box-shadow:
-    0 0 0 1px #fff,
-    0 0 0 3px var(--od-ink);
+  box-shadow: 0 0 0 1.5px var(--od-ink);
 }
 
 /*
@@ -155,19 +161,19 @@
   Dawn's own component-swatch.css is only loaded by its product and facet
   sections, so this card cannot assume it is on the page. These rules are
   self-sufficient, and they still win on specificity where that stylesheet *is*
-  loaded (a product page), so the swatch keeps the card's 16px size instead of
+  loaded (a product page), so the swatch keeps the card's size instead of
   Dawn's 4.4rem.
 */
 .od-card__swatch {
-  --swatch--size: 16px;
+  --swatch--size: 15px;
   --swatch--border-radius: 50%;
 }
 
 .od-card__swatch-dot,
 .od-card__swatch .swatch {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   border: 0;
   border-radius: 50%;
   /* --swatch--background is set inline by Dawn's swatch snippet, as a colour or
@@ -176,47 +182,54 @@
   background: var(--swatch--background, #ddd);
   background-size: cover;
   background-position: var(--swatch-focal-point, center);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-/* A colour with nothing left in stock: still selectable (the shopper may want
-   to see it), but struck through so the state is visible before they click. */
+/* A colour with nothing left in stock: still selectable — a shopper may well
+   want to look at it — but struck through so the state is visible before the
+   click rather than after it. */
 .od-card__swatch--unavailable .od-card__swatch-dot,
 .od-card__swatch--unavailable .swatch {
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .od-card__swatch--unavailable::after {
   content: '';
   position: absolute;
-  width: 20px;
+  width: 17px;
   height: 1px;
   background: var(--od-ink);
   transform: rotate(-45deg);
 }
 
-.od-card__swatch {
-  position: relative;
-}
+/*
+  Overflow marker, in the pill's last slot.
 
+  The design draws a small neutral dot here. A bare dot doesn't say what it
+  does, and the brief asks for an indicator, so this carries the count as "+N"
+  at the same footprint — same silhouette in the pill, but it tells the shopper
+  there are eight more colours and takes them to the product page. Flagged in
+  the README.
+*/
 .od-card__swatch-more {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
   border-radius: var(--od-radius-pill);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(17, 17, 17, 0.07);
   color: var(--od-ink);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: 0;
   text-decoration: none;
 }
 
 .od-card__swatch-more:hover {
-  background: #fff;
+  background: rgba(17, 17, 17, 0.14);
 }
 
 /* ── Quick add ──────────────────────────────────────────────────────────── */
@@ -224,8 +237,8 @@
 .od-card__quick-add {
   position: absolute;
   z-index: 3;
-  right: 8px;
-  top: 8px;
+  right: 10px;
+  bottom: 10px; /* bottom-right in the design, not top-right */
 }
 
 .od-card__quick-add-form {
@@ -235,15 +248,15 @@
 .od-card__quick-add-button {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.94);
   color: var(--od-ink);
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
   transition: background var(--od-duration) var(--od-ease), color var(--od-duration) var(--od-ease);
 }
 
@@ -286,7 +299,7 @@
 
 .od-card__quick-add-error {
   position: absolute;
-  top: 38px;
+  bottom: 34px;
   right: 0;
   width: max-content;
   max-width: 180px;

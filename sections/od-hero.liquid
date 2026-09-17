@@ -43,6 +43,8 @@
     --od-hero-align-x: {{ s.horizontal_alignment }};
     --od-hero-align-y: {{ s.vertical_alignment }};
     --od-hero-headline-width: {{ s.headline_max_width }}px;
+    --od-button-bg: {{ s.cta_background }};
+    --od-button-ink: {{ s.cta_text_color }};
   "
 >
   <div class="od-hero__media">
@@ -111,7 +113,7 @@
       {%- endif -%}
 
       {%- if s.cta_label != blank and cta_url != blank -%}
-        <a class="od-button od-button--solid od-hero__cta" href="{{ cta_url }}">
+        <a class="od-button od-hero__cta" href="{{ cta_url }}">
           {{ s.cta_label | escape }}
         </a>
       {%- elsif s.cta_label != blank and request.design_mode -%}
@@ -214,6 +216,8 @@
 
     { "type": "header", "content": "Button" },
     { "type": "text", "id": "cta_label", "label": "Button label", "default": "Shop the collection" },
+    { "type": "color", "id": "cta_background", "label": "Button colour", "default": "#aafff9" },
+    { "type": "color", "id": "cta_text_color", "label": "Button text colour", "default": "#111111" },
     { "type": "collection", "id": "cta_collection", "label": "Button links to this collection" },
     {
       "type": "url",

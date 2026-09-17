@@ -149,16 +149,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 18px 10px;
-  border-radius: 6px 0 0 6px;
+  padding: 18px 9px;
+  /* Square, flush to the edge, as drawn. */
+  border-radius: 0;
   background: var(--od-paper);
   color: var(--od-ink);
   font-family: var(--od-font-body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: var(--od-tracking-wider);
   text-transform: uppercase;
   text-decoration: none;
+  /* vertical-rl reads top-to-bottom, which is the direction drawn. */
   writing-mode: vertical-rl;
   transition: padding var(--od-duration) var(--od-ease);
 }

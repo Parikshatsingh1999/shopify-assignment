@@ -10,7 +10,7 @@
   Accepts:
   - product            {Product}  required
   - card_id            {String}   unique id fragment (section id + index) — required for a11y ids
-  - image_ratio        {String}   e.g. '3 / 4'. Default '3 / 4'
+  - image_ratio        {String}   e.g. '214 / 316'. Default '214 / 316' (the design)
   - swatch_limit       {Number}   how many swatches fit before the overflow chip. Default 4
   - colour_option_name {String}   which option holds colours. Default 'Color'
   - secondary_source   {String}   'type' | 'vendor' | 'first_tag' | 'none'. Default 'type'
@@ -24,7 +24,7 @@
 {% endcomment %}
 
 {%- liquid
-  assign image_ratio = image_ratio | default: '3 / 4'
+  assign image_ratio = image_ratio | default: '214 / 316'
   assign swatch_limit = swatch_limit | default: 4
   assign colour_option_name = colour_option_name | default: 'Color'
   assign secondary_source = secondary_source | default: 'type'
@@ -294,8 +294,16 @@
             aria-label="{{ 'od.card.quick_add' | t }} — {{ product.title | escape }}"
           >
             <span class="od-card__quick-add-icon" data-od-quick-add-idle aria-hidden="true">
-              <svg viewBox="0 0 16 16" width="14" height="14" focusable="false">
-                <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+              {%- comment -%} A shopping bag, as drawn — not a plus. {%- endcomment -%}
+              <svg viewBox="0 0 16 16" width="13" height="13" focusable="false" aria-hidden="true">
+                <path
+                  d="M3.4 5.3h9.2l-.7 8.1a1 1 0 0 1-1 .9H5.1a1 1 0 0 1-1-.9l-.7-8.1Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"
+                />
+                <path
+                  d="M6.1 5.3V4a1.9 1.9 0 0 1 3.8 0v1.3"
+                  fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                />
               </svg>
             </span>
             <span class="od-card__quick-add-spinner" data-od-quick-add-busy aria-hidden="true" hidden></span>

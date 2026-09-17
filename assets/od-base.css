@@ -16,12 +16,20 @@
   --od-gutter-tablet: 40px;
   --od-gutter-mobile: 20px;
 
-  /* Colour -------------------------------------------------------------- */
+  /* Colour ---------------------------------------------------------------
+     Sampled from the Figma. Every one of these is also exposed as a schema
+     setting on the section that uses it, so a merchant can re-skin a section
+     without a developer; these are the defaults, not the only values. */
   --od-ink: #111111;
   --od-ink-muted: #6b6b6b;
   --od-paper: #ffffff;
   --od-line: #e4e4e4;
   --od-accent: #111111;
+
+  --od-aqua: #aafff9;    /* hero CTA fill */
+  --od-brown: #441805;   /* drop teaser, left panel */
+  --od-cream: #fffbf8;   /* drop teaser, right panel */
+  --od-tile: #e4dcd9;    /* countdown digit tiles */
   --od-sale: #b3261e;          /* Clearance badge */
   --od-final-sale: #111111;    /* Final Sale badge */
   --od-focus: #005bd3;         /* Shopify admin focus blue, high contrast on both themes */
@@ -79,40 +87,49 @@
   border: 0;
 }
 
-/* Shared button --------------------------------------------------------- */
+/* Shared button ---------------------------------------------------------
+   The design draws a hard-edged rectangle, not a pill, so square is the
+   default and the radius is a token rather than a value to hunt down. */
 .od-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 48px;
-  padding: 0 32px;
-  border: 1px solid currentColor;
-  border-radius: var(--od-radius-pill);
-  background: var(--od-paper);
-  color: var(--od-ink);
+  padding: 0 clamp(24px, 2.6vw, 40px);
+  border: 0;
+  border-radius: var(--od-button-radius, 0);
+  background: var(--od-button-bg, var(--od-aqua));
+  color: var(--od-button-ink, var(--od-ink));
   font-family: var(--od-font-body);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: var(--od-tracking-wide);
+  letter-spacing: var(--od-tracking-wider);
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: background var(--od-duration) var(--od-ease), color var(--od-duration) var(--od-ease);
+  transition: filter var(--od-duration) var(--od-ease);
 }
 
+/*
+  Hover darkens the merchant's own colour instead of swapping to a second one.
+  A hardcoded hover pair breaks the moment someone changes the fill in the
+  editor — this stays correct for any colour they pick, light or dark.
+*/
 .od-button:hover {
-  background: var(--od-ink);
-  color: var(--od-paper);
+  filter: brightness(0.92);
 }
 
-.od-button--solid {
-  background: var(--od-ink);
-  color: var(--od-paper);
+/* Outline variant, for a button on top of a photograph. */
+.od-button--outline {
+  background: transparent;
+  color: var(--od-button-ink, #fff);
+  box-shadow: inset 0 0 0 1px currentColor;
 }
 
-.od-button--solid:hover {
-  background: var(--od-paper);
-  color: var(--od-ink);
+.od-button--outline:hover {
+  filter: none;
+  background: var(--od-button-ink, #fff);
+  color: var(--od-button-bg, var(--od-ink));
 }
 
 @media (prefers-reduced-motion: reduce) {
