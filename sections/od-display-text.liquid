@@ -53,7 +53,7 @@
     --od-display-fallback-ink: {{ s.fallback_text_color }};
     --od-display-size: {{ s.text_size }};
     --od-display-padding: {{ s.vertical_padding }}px;
-    --od-display-tracking: {{ s.letter_spacing }}em;
+    --od-display-tracking: {{ s.letter_spacing | divided_by: 100.0 }}em;
     {%- if s.fill_image != blank -%}
       --od-display-fill: url({{ s.fill_image | image_url: width: 2400 }});
     {%- endif -%}
@@ -140,7 +140,8 @@
       "type": "range",
       "id": "letter_spacing",
       "label": "Letter spacing",
-      "min": -0.06, "max": 0.2, "step": 0.01, "unit": "em", "default": -0.02
+      "min": -6, "max": 20, "step": 1, "unit": "%", "default": -2,
+      "info": "Tightens or loosens the gaps between letters."
     },
 
     { "type": "header", "content": "Fill" },
