@@ -1,0 +1,90 @@
+/*
+  od-grid.css · Test 2 — collection grid
+
+  Column count is a merchant setting, so the breakpoints step it down rather
+  than hardcoding a ladder: whatever they choose for desktop, tablet gets
+  roughly two thirds of it and mobile gets their mobile choice.
+*/
+
+.od-grid-section {
+  padding: var(--od-grid-padding, 48px) var(--od-gutter-desktop);
+  max-width: var(--od-max-width);
+  margin-inline: auto;
+}
+
+.od-grid-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+
+.od-grid-section__heading {
+  margin: 0;
+  font-family: var(--od-font-display);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.2;
+  letter-spacing: var(--od-tracking-wide);
+  text-transform: uppercase;
+}
+
+.od-grid-section__view-all {
+  flex: 0 0 auto;
+  color: var(--od-ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: var(--od-tracking-wide);
+  text-transform: uppercase;
+  text-underline-offset: 4px;
+}
+
+.od-grid-section__empty {
+  margin: 0;
+  padding: 32px;
+  border: 1px dashed var(--od-line);
+  border-radius: var(--od-radius-tile);
+  color: var(--od-ink-muted);
+  text-align: center;
+}
+
+.od-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--od-grid-columns, 6), minmax(0, 1fr));
+  gap: calc(var(--od-grid-gap, 16px) * 1.75) var(--od-grid-gap, 16px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.od-grid__item {
+  /* minmax(0, 1fr) above plus this stops a long unbroken title from widening
+     its column and throwing the whole row out. */
+  min-width: 0;
+}
+
+@media screen and (max-width: 1199px) {
+  .od-grid {
+    grid-template-columns: repeat(max(2, calc(var(--od-grid-columns, 6) - 1)), minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 989px) {
+  .od-grid-section {
+    padding-inline: var(--od-gutter-tablet);
+  }
+
+  .od-grid {
+    grid-template-columns: repeat(max(2, calc(var(--od-grid-columns, 6) - 2)), minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .od-grid-section {
+    padding-inline: var(--od-gutter-mobile);
+  }
+
+  .od-grid {
+    grid-template-columns: repeat(var(--od-grid-columns-mobile, 2), minmax(0, 1fr));
+  }
+}

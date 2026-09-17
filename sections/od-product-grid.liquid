@@ -1,0 +1,196 @@
+{% comment %}
+  od-product-grid
+  Test 2 · The grid the product card is rendered in.
+
+  The section's only job is layout and settings: which products, how many across,
+  and what the card should show. All the card behaviour lives in the
+  od-product-card snippet, so the same card can be rendered by any other section
+  without dragging this one along.
+
+  At the 1440 design width, six columns with a 16px gap puts each card at 214px —
+  the card size in the Figma.
+{% endcomment %}
+
+{{ 'od-base.css' | asset_url | stylesheet_tag }}
+{{ 'od-product-card.css' | asset_url | stylesheet_tag }}
+{{ 'od-grid.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'od-product-card.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+
+  # On a collection template the section defaults to the collection being
+  # viewed, so a merchant doesn't have to pick it twice.
+  assign target = s.collection
+  if target == blank and collection != blank
+    assign target = collection
+  endif
+
+  assign products = target.products
+  assign product_count = products.size
+-%}
+
+<section
+  class="od-section od-grid-section"
+  style="
+    --od-grid-columns: {{ s.columns_desktop }};
+    --od-grid-columns-mobile: {{ s.columns_mobile }};
+    --od-grid-gap: {{ s.column_gap }}px;
+    --od-grid-padding: {{ s.vertical_padding }}px;
+  "
+>
+  {%- if s.heading != blank or s.view_all_label != blank -%}
+    <div class="od-grid-section__head">
+      {%- if s.heading != blank -%}
+        <h2 class="od-grid-section__heading">{{ s.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- if s.view_all_label != blank and target != blank -%}
+        <a class="od-grid-section__view-all" href="{{ target.url }}">
+          {{ s.view_all_label | escape }}
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if product_count > 0 -%}
+    <ul class="od-grid" role="list">
+      {%- for product in products limit: s.products_to_show -%}
+        {%- capture card_id -%}{{ section.id }}-{{ forloop.index }}{%- endcapture -%}
+        <li class="od-grid__item">
+          {%- comment -%}
+            The first row is above the fold on most screens, so those images load
+            eagerly and the rest stay lazy.
+          {%- endcomment -%}
+          {%- assign lazy_load = true -%}
+          {%- if forloop.index <= s.columns_desktop -%}
+            {%- assign lazy_load = false -%}
+          {%- endif -%}
+
+          {% render 'od-product-card',
+            product: product,
+            card_id: card_id,
+            image_ratio: s.image_ratio,
+            swatch_limit: s.swatch_limit,
+            colour_option_name: s.colour_option_name,
+            secondary_source: s.secondary_source,
+            show_vendor: s.show_vendor,
+            show_quick_add: s.show_quick_add,
+            final_sale_tag: s.final_sale_tag,
+            lazy: lazy_load
+          %}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- elsif request.design_mode -%}
+    <p class="od-grid-section__empty">
+      Choose a collection with products in it to see the grid.
+    </p>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Product grid",
+  "tag": "section",
+  "class": "od-section-wrapper",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "header", "content": "Products" },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "On a collection page, leave this empty to show the collection being viewed."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products shown",
+      "min": 2, "max": 48, "step": 1, "default": 12
+    },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop the collection" },
+    { "type": "text", "id": "view_all_label", "label": "\"View all\" link text", "default": "View all" },
+
+    { "type": "header", "content": "What each card shows" },
+    {
+      "type": "select",
+      "id": "secondary_source",
+      "label": "Line under the product name",
+      "options": [
+        { "value": "type", "label": "Product type" },
+        { "value": "vendor", "label": "Brand" },
+        { "value": "first_tag", "label": "First tag" },
+        { "value": "none", "label": "Nothing" }
+      ],
+      "default": "type"
+    },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show the brand line", "default": true },
+    { "type": "checkbox", "id": "show_quick_add", "label": "Show the add-to-cart button", "default": true },
+    {
+      "type": "range",
+      "id": "swatch_limit",
+      "label": "Colour dots before \"+more\"",
+      "min": 2, "max": 8, "step": 1, "default": 4,
+      "info": "Extra colours are rolled into a +N chip that links to the product."
+    },
+    {
+      "type": "text",
+      "id": "colour_option_name",
+      "label": "Name of your colour option",
+      "default": "Color",
+      "info": "Whatever the option is called on your products — Color, Colour, Shade."
+    },
+    {
+      "type": "text",
+      "id": "final_sale_tag",
+      "label": "Tag that marks Final Sale",
+      "default": "final-sale",
+      "info": "Add this tag to a product to show the Final Sale badge."
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Products per row",
+      "min": 2, "max": 8, "step": 1, "default": 6,
+      "info": "6 matches the design at full width."
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "3 / 4", "label": "Portrait" },
+        { "value": "1 / 1", "label": "Square" },
+        { "value": "4 / 5", "label": "Slightly portrait" }
+      ],
+      "default": "3 / 4"
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Space between products",
+      "min": 4, "max": 48, "step": 2, "unit": "px", "default": 16
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Space above and below",
+      "min": 0, "max": 120, "step": 4, "default": 48, "unit": "px"
+    }
+  ],
+  "presets": [{ "name": "Product grid" }]
+}
+{% endschema %}

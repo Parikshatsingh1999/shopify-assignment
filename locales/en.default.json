@@ -274,7 +274,6 @@
       "announcement": "Announcement",
       "announcement_bar": "Announcement bar"
     },
-
     "header": {
       "announcement": "Announcement",
       "menu": "Menu",
@@ -527,6 +526,19 @@
       "max_characters": "{{ max_chars }} characters max",
       "send_on": "YYYY-MM-DD",
       "send_on_label": "Send on (optional)"
+    }
+  },
+  "od": {
+    "card": {
+      "clearance": "Clearance",
+      "final_sale": "Final Sale",
+      "sold_out": "Sold out",
+      "colour_label": "Colour",
+      "quick_add": "Add to cart",
+      "view_all_colours": {
+        "one": "View all {{ count }} colour",
+        "other": "View all {{ count }} colours"
+      }
     }
   }
 }

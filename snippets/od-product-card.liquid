@@ -1,0 +1,340 @@
+{% comment %}
+  od-product-card
+  Test 2 · Product card — 214 × 415 at the 1440 design width.
+
+  A snippet, not a section, so it can be dropped into any grid: the collection
+  grid in this repo, a featured-collection section, search results, related
+  products. It takes everything it needs as arguments and reads nothing from
+  `section`, so it never breaks when it is rendered somewhere new.
+
+  Accepts:
+  - product            {Product}  required
+  - card_id            {String}   unique id fragment (section id + index) — required for a11y ids
+  - image_ratio        {String}   e.g. '3 / 4'. Default '3 / 4'
+  - swatch_limit       {Number}   how many swatches fit before the overflow chip. Default 4
+  - colour_option_name {String}   which option holds colours. Default 'Color'
+  - secondary_source   {String}   'type' | 'vendor' | 'first_tag' | 'none'. Default 'type'
+  - show_vendor        {Boolean}  the hidden vendor line. Default false
+  - show_quick_add     {Boolean}  Default true
+  - final_sale_tag     {String}   tag that flags Final Sale. Default 'final-sale'
+  - lazy               {Boolean}  lazy-load the image. Default true
+
+  Usage:
+    {% render 'od-product-card', product: product, card_id: card_id, swatch_limit: 4 %}
+{% endcomment %}
+
+{%- liquid
+  assign image_ratio = image_ratio | default: '3 / 4'
+  assign swatch_limit = swatch_limit | default: 4
+  assign colour_option_name = colour_option_name | default: 'Color'
+  assign secondary_source = secondary_source | default: 'type'
+  assign final_sale_tag = final_sale_tag | default: 'final-sale'
+  if lazy == nil
+    assign lazy = true
+  endif
+  if show_quick_add == nil
+    assign show_quick_add = true
+  endif
+
+  assign loading_attr = 'lazy'
+  unless lazy
+    assign loading_attr = 'eager'
+  endunless
+
+  # ── Which option holds the colours? ──────────────────────────────────────
+  # Matched loosely so "Color", "Colour" and "COLOR" all work without the
+  # merchant having to know which spelling the theme expects.
+  assign colour_option = null
+  assign colour_needle = colour_option_name | downcase
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name == colour_needle or option_name == 'color' or option_name == 'colour'
+      assign colour_option = option
+      break
+    endif
+  endfor
+
+  assign has_swatches = false
+  if colour_option != null and colour_option.values.size > 1
+    assign has_swatches = true
+  endif
+
+  # ── The variant the card starts on ───────────────────────────────────────
+  # selected_or_first_available_variant keeps a sold-out product on a real
+  # variant rather than falling back to nothing.
+  assign current = product.selected_or_first_available_variant | default: product.variants.first
+
+  # The colour the card starts on, as a plain string, so swatches can be marked
+  # selected without relying on value.selected (which is only meaningful on a
+  # product page, not in a grid).
+  assign current_colour = ''
+  if colour_option != null
+    case colour_option.position
+      when 1
+        assign current_colour = current.option1
+      when 2
+        assign current_colour = current.option2
+      when 3
+        assign current_colour = current.option3
+    endcase
+  endif
+
+  # ── Secondary line ───────────────────────────────────────────────────────
+  case secondary_source
+    when 'type'
+      assign secondary_line = product.type
+    when 'vendor'
+      assign secondary_line = product.vendor
+    when 'first_tag'
+      assign secondary_line = product.tags.first
+    else
+      assign secondary_line = blank
+  endcase
+
+  # ── States ───────────────────────────────────────────────────────────────
+  assign is_final_sale = false
+  if product.tags contains final_sale_tag
+    assign is_final_sale = true
+  endif
+
+  assign on_sale = false
+  if current.compare_at_price > current.price
+    assign on_sale = true
+  endif
+
+  assign quick_add_form_id = card_id | append: '-form'
+-%}
+
+<div
+  class="od-card{% unless product.available %} od-card--sold-out{% endunless %}"
+  style="--od-card-ratio: {{ image_ratio }};"
+  data-od-card
+  data-product-id="{{ product.id }}"
+  data-product-url="{{ product.url }}"
+  data-final-sale="{{ is_final_sale }}"
+>
+  {%- comment -%}
+    Variant data for the swatch switcher. Only the fields the card actually
+    repaints — sending the whole variant object for twelve colours across a
+    forty-product grid is a payload nobody needs.
+  {%- endcomment -%}
+  <script type="application/json" data-od-card-variants>
+    [
+      {%- for variant in product.variants -%}
+        {%- liquid
+          assign variant_colour = blank
+          if colour_option != null
+            case colour_option.position
+              when 1
+                assign variant_colour = variant.option1
+              when 2
+                assign variant_colour = variant.option2
+              when 3
+                assign variant_colour = variant.option3
+            endcase
+          endif
+
+          assign variant_on_sale = false
+          if variant.compare_at_price > variant.price
+            assign variant_on_sale = true
+          endif
+        -%}
+        {
+          "id": {{ variant.id }},
+          "colour": {{ variant_colour | json }},
+          "available": {{ variant.available | json }},
+          "url": {{ variant.url | json }},
+          "price": {{ variant.price | money | strip_html | json }},
+          "compareAt": {% if variant_on_sale %}{{ variant.compare_at_price | money | strip_html | json }}{% else %}null{% endif %},
+          "onSale": {{ variant_on_sale | json }},
+          "image": {% if variant.featured_media.preview_image %}{{ variant.featured_media.preview_image | image_url: width: 640 | json }}{% else %}null{% endif %},
+          "imageAlt": {{ variant.featured_media.preview_image.alt | default: product.title | json }}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+  </script>
+
+  <div class="od-card__media">
+    {%- comment -%}
+      The image link is aria-hidden with tabindex -1: it points at the same
+      place as the title link below, and two tab stops per card makes keyboard
+      navigation of a forty-card grid twice as long for no benefit.
+    {%- endcomment -%}
+    <a
+      class="od-card__media-link"
+      href="{{ current.url | default: product.url }}"
+      data-od-card-link
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      {%- if product.featured_media -%}
+        <img
+          src="{{ product.featured_media | image_url: width: 640 }}"
+          srcset="
+            {{ product.featured_media | image_url: width: 214 }} 214w,
+            {{ product.featured_media | image_url: width: 428 }} 428w,
+            {{ product.featured_media | image_url: width: 640 }} 640w
+          "
+          sizes="(min-width: 990px) 214px, (min-width: 750px) 33vw, 50vw"
+          width="{{ product.featured_media.width }}"
+          height="{{ product.featured_media.height }}"
+          alt="{{ product.featured_media.alt | default: product.title | escape }}"
+          class="od-card__image"
+          loading="{{ loading_attr }}"
+          data-od-card-image
+        >
+      {%- else -%}
+        {%- comment -%}
+          Missing image: the placeholder fills the same box, so a product with no
+          media never shortens its card and breaks the grid's baseline.
+        {%- endcomment -%}
+        <div class="od-card__image od-card__image--placeholder">
+          {{ 'product-apparel-2' | placeholder_svg_tag: 'od-card__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} ── Badges ──────────────────────────────────────────── {%- endcomment -%}
+    <div class="od-card__badges">
+      <span
+        class="od-card__badge od-card__badge--clearance"
+        data-od-badge-clearance
+        {% unless on_sale %}hidden{% endunless %}
+      >{{ 'od.card.clearance' | t }}</span>
+
+      {%- if is_final_sale -%}
+        <span class="od-card__badge od-card__badge--final">{{ 'od.card.final_sale' | t }}</span>
+      {%- endif -%}
+
+      {%- unless product.available -%}
+        <span class="od-card__badge od-card__badge--sold-out">{{ 'od.card.sold_out' | t }}</span>
+      {%- endunless -%}
+    </div>
+
+    {%- comment -%} ── Colour swatches ─────────────────────────────────── {%- endcomment -%}
+    {%- if has_swatches -%}
+      {%- assign total_colours = colour_option.values.size -%}
+      <div
+        class="od-card__swatches"
+        role="radiogroup"
+        aria-label="{{ 'od.card.colour_label' | t }} — {{ product.title | escape }}"
+        data-od-swatches
+      >
+        {%- for value in colour_option.values -%}
+          {%- liquid
+            # product_option_value casts to its name when appended to a string.
+            assign value_name = value | append: ''
+
+            assign is_overflow = false
+            if forloop.index > swatch_limit
+              assign is_overflow = true
+            endif
+
+            assign is_current = false
+            if value_name == current_colour
+              assign is_current = true
+            endif
+
+            assign swatch_id = card_id | append: '-swatch-' | append: forloop.index
+          -%}
+          <button
+            type="button"
+            class="od-card__swatch{% unless value.available %} od-card__swatch--unavailable{% endunless %}"
+            id="{{ swatch_id }}"
+            role="radio"
+            aria-checked="{{ is_current }}"
+            tabindex="{% if is_current %}0{% else %}-1{% endif %}"
+            data-od-swatch
+            data-colour="{{ value_name | escape }}"
+            {% if is_overflow %}hidden data-overflow="true"{% endif %}
+          >
+            {%- if value.swatch -%}
+              {%- comment -%}
+                Shopify's native swatch data (Products → Options → swatch) is the
+                right source when the merchant has set it: it survives theme
+                changes and matches the swatches in filters and on the PDP.
+              {%- endcomment -%}
+              {% render 'swatch', swatch: value.swatch %}
+            {%- else -%}
+              {%- comment -%}
+                No swatch configured: fall back to the CSS colour keyword of the
+                option name, which covers "Black", "Ivory", "Olive" and most of
+                what merchants actually type. An unknown word paints nothing, so
+                the ring and the label still identify it.
+              {%- endcomment -%}
+              <span class="od-card__swatch-dot" style="background: {{ value_name | downcase | replace: ' ', '' }};"></span>
+            {%- endif -%}
+            <span class="od-visually-hidden">
+              {{ value_name }}{% unless value.available %} ({{ 'od.card.sold_out' | t }}){% endunless %}
+            </span>
+          </button>
+        {%- endfor -%}
+
+        {%- if total_colours > swatch_limit -%}
+          {%- assign overflow_count = total_colours | minus: swatch_limit -%}
+          <a
+            class="od-card__swatch-more"
+            href="{{ product.url }}"
+            aria-label="{{ 'od.card.view_all_colours' | t: count: total_colours }}"
+          >+{{ overflow_count }}</a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ── Quick add ───────────────────────────────────────── {%- endcomment -%}
+    {%- if show_quick_add -%}
+      <od-quick-add class="od-card__quick-add" data-od-quick-add>
+        {%- form 'product', product, id: quick_add_form_id, class: 'od-card__quick-add-form', novalidate: 'novalidate' -%}
+          <input type="hidden" name="id" value="{{ current.id }}" data-od-variant-input>
+          <input type="hidden" name="quantity" value="1">
+          <button
+            type="submit"
+            class="od-card__quick-add-button"
+            data-od-quick-add-button
+            {% unless current.available %}disabled{% endunless %}
+            aria-label="{{ 'od.card.quick_add' | t }} — {{ product.title | escape }}"
+          >
+            <span class="od-card__quick-add-icon" data-od-quick-add-idle aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="14" height="14" focusable="false">
+                <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="od-card__quick-add-spinner" data-od-quick-add-busy aria-hidden="true" hidden></span>
+            <span class="od-card__quick-add-tick" data-od-quick-add-done aria-hidden="true" hidden>
+              <svg viewBox="0 0 16 16" width="14" height="14" focusable="false">
+                <path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+        {%- endform -%}
+        <p class="od-card__quick-add-error" data-od-quick-add-error role="alert" hidden></p>
+      </od-quick-add>
+    {%- endif -%}
+  </div>
+
+  <div class="od-card__body">
+    <h3 class="od-card__title">
+      <a class="od-card__title-link" href="{{ current.url | default: product.url }}" data-od-card-title-link>
+        {{ product.title }}
+      </a>
+    </h3>
+
+    {%- if secondary_line != blank -%}
+      <p class="od-card__secondary">{{ secondary_line }}</p>
+    {%- endif -%}
+
+    {%- if show_vendor and product.vendor != blank -%}
+      <p class="od-card__vendor">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    <div class="od-card__price" data-od-price>
+      <span class="od-visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+      <span class="od-card__price-current{% if on_sale %} od-card__price-current--sale{% endif %}" data-od-price-current>
+        {{ current.price | money }}
+      </span>
+      <s class="od-card__price-was" data-od-price-was {% unless on_sale %}hidden{% endunless %}>
+        {%- if on_sale -%}{{ current.compare_at_price | money }}{%- endif -%}
+      </s>
+    </div>
+  </div>
+</div>

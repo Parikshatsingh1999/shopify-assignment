@@ -1,0 +1,374 @@
+/*
+  od-product-card.css · Test 2 — Product card (214 × 415 at the 1440 artboard)
+
+  The card never sets its own width. It fills whatever grid cell it is dropped
+  into and takes its proportions from the image ratio, so the same snippet works
+  in a six-up collection grid, a four-up featured row or a search results page.
+
+  Every state that has to survive real data lives here: long titles, missing
+  images, sold-out variants, twelve colours.
+*/
+
+.od-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  font-family: var(--od-font-body);
+  color: var(--od-ink);
+}
+
+/* ── Media ──────────────────────────────────────────────────────────────── */
+
+.od-card__media {
+  position: relative;
+  aspect-ratio: var(--od-card-ratio, 3 / 4);
+  overflow: hidden;
+  border-radius: var(--od-radius-tile);
+  background: #f4f4f4;
+}
+
+.od-card__media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.od-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 400ms var(--od-ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .od-card:hover .od-card__image {
+    transform: scale(1.03);
+  }
+}
+
+.od-card__image--placeholder {
+  display: grid;
+  place-items: center;
+  background: #ececec;
+}
+
+.od-card__placeholder-svg {
+  width: 70%;
+  height: 70%;
+  fill: rgba(0, 0, 0, 0.14);
+}
+
+/* A sold-out product reads as muted, but not so faint that the copy fails
+   contrast — the badge carries the actual message. */
+.od-card--sold-out .od-card__image {
+  opacity: 0.55;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+
+.od-card__badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  /* Never let a badge stack cover the whole card on a narrow cell. */
+  max-width: calc(100% - 16px);
+}
+
+.od-card__badge {
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: var(--od-tracking-wide);
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.od-card__badge--clearance {
+  background: var(--od-sale);
+  color: #fff;
+}
+
+.od-card__badge--final {
+  background: var(--od-final-sale);
+  color: #fff;
+}
+
+.od-card__badge--sold-out {
+  background: #fff;
+  color: var(--od-ink);
+  box-shadow: inset 0 0 0 1px var(--od-line);
+}
+
+/* ── Swatches ───────────────────────────────────────────────────────────—
+   Overlaid on the image, as drawn. The row never wraps: the overflow chip
+   absorbs everything past the limit, so twelve colours take the same space as
+   four. */
+
+.od-card__swatches {
+  position: absolute;
+  z-index: 2;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.od-card__swatch {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  /* The ring sits outside the dot so the selected state doesn't change size. */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+  transition: box-shadow var(--od-duration) var(--od-ease);
+}
+
+.od-card__swatch[aria-checked='true'] {
+  box-shadow:
+    0 0 0 1px #fff,
+    0 0 0 3px var(--od-ink);
+}
+
+.od-card__swatch-dot,
+.od-card__swatch .swatch {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ddd; /* shows through when the colour name isn't a CSS keyword */
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+/* A colour with nothing left in stock: still selectable (the shopper may want
+   to see it), but struck through so the state is visible before they click. */
+.od-card__swatch--unavailable .od-card__swatch-dot,
+.od-card__swatch--unavailable .swatch {
+  opacity: 0.45;
+}
+
+.od-card__swatch--unavailable::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 1px;
+  background: var(--od-ink);
+  transform: rotate(-45deg);
+}
+
+.od-card__swatch {
+  position: relative;
+}
+
+.od-card__swatch-more {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--od-radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--od-ink);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.od-card__swatch-more:hover {
+  background: #fff;
+}
+
+/* ── Quick add ──────────────────────────────────────────────────────────── */
+
+.od-card__quick-add {
+  position: absolute;
+  z-index: 3;
+  right: 8px;
+  top: 8px;
+}
+
+.od-card__quick-add-form {
+  margin: 0;
+}
+
+.od-card__quick-add-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--od-ink);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  transition: background var(--od-duration) var(--od-ease), color var(--od-duration) var(--od-ease);
+}
+
+.od-card__quick-add-button:hover:not(:disabled) {
+  background: var(--od-ink);
+  color: #fff;
+}
+
+.od-card__quick-add-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.od-card__quick-add-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+.od-card__quick-add-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: od-spin 600ms linear infinite;
+}
+
+@keyframes od-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .od-card__quick-add-spinner {
+    animation: none;
+    border-right-color: currentColor;
+    opacity: 0.4;
+  }
+}
+
+.od-card__quick-add-error {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: max-content;
+  max-width: 180px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: var(--od-radius-tile);
+  background: var(--od-sale);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* ── Text block ─────────────────────────────────────────────────────────── */
+
+.od-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.od-card__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.od-card__title-link {
+  color: inherit;
+  text-decoration: none;
+  /* Two lines, then ellipsis. A 90-character title must not push the price of
+     this card below the price of the one next to it. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.od-card__title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The whole card is clickable, but the tab stop stays on the title link. */
+.od-card__title-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.od-card__secondary,
+.od-card__vendor {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--od-ink-muted);
+}
+
+.od-card__vendor {
+  letter-spacing: var(--od-tracking-wide);
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.od-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.od-card__price-current--sale {
+  color: var(--od-sale);
+}
+
+.od-card__price-was {
+  color: var(--od-ink-muted);
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+/* ── Small screens ──────────────────────────────────────────────────────── */
+
+@media screen and (max-width: 749px) {
+  .od-card__quick-add-button,
+  .od-card__swatch {
+    /* Touch targets: the visual size stays on the design, the hit area grows. */
+    position: relative;
+  }
+
+  .od-card__quick-add-button::before,
+  .od-card__swatch::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+
+  .od-card__title {
+    font-size: 12px;
+  }
+}
