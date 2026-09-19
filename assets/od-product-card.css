@@ -353,6 +353,9 @@
   flex: 1 1 0;
   min-width: 0;
   margin: 0;
+  /* Stated, not inherited: this is an h3, and Dawn styles h1-h6 with the theme's
+     heading font — a direct rule beats anything the card inherits. */
+  font-family: var(--od-font-body);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
@@ -395,7 +398,7 @@
   font-weight: 500;
   line-height: 20px;
   letter-spacing: 0.25px;
-  color: var(--od-ink);
+  color: #000;
   white-space: nowrap;
 }
 
