@@ -314,16 +314,17 @@
             aria-label="{{ 'od.card.quick_add' | t }} — {{ product.title | escape }}"
           >
             <span class="od-card__quick-add-icon" data-od-quick-add-idle aria-hidden="true">
-              {%- comment -%} A shopping bag, as drawn — not a plus. {%- endcomment -%}
-              <svg viewBox="0 0 16 16" width="13" height="13" focusable="false" aria-hidden="true">
-                <path
-                  d="M3.4 5.3h9.2l-.7 8.1a1 1 0 0 1-1 .9H5.1a1 1 0 0 1-1-.9l-.7-8.1Z"
-                  fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"
-                />
-                <path
-                  d="M6.1 5.3V4a1.9 1.9 0 0 1 3.8 0v1.3"
-                  fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
-                />
+              {%- comment -%}
+                The design's glyph is a bag with a plus inside: a rounded
+                rectangle with a semicircular handle, 12.4 x 16 inside the 32px
+                circle. Not a tapered sack, and not a bare plus.
+              {%- endcomment -%}
+              <svg viewBox="0 0 12.4 16" width="12.4" height="16" focusable="false" aria-hidden="true">
+                <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3.8 5.1V3.3a2.4 2.4 0 0 1 4.8 0v1.8"/>
+                  <rect x="0.6" y="5.1" width="11.2" height="10.3" rx="1.4"/>
+                  <path d="M6.2 8.5v3.5M4.45 10.25h3.5"/>
+                </g>
               </svg>
             </span>
             <span class="od-card__quick-add-spinner" data-od-quick-add-busy aria-hidden="true" hidden></span>
