@@ -46,7 +46,7 @@
         "expired_link_label": "Shop now",
         "expired_link": "",
         "show_days": true,
-        "show_seconds": true,
+        "show_seconds": false,
         "label_days": "Days",
         "label_hours": "Hours",
         "label_minutes": "Minutes",
