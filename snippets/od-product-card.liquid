@@ -16,8 +16,6 @@
   - secondary_source   {String}   'type' | 'vendor' | 'first_tag' | 'none'. Default 'type'
   - show_vendor        {Boolean}  the hidden vendor line. Default false
   - show_quick_add     {Boolean}  Default true
-  - final_sale_tag     {String}   tag that flags Final Sale, matched loosely
-                                (case and spaces ignored). Default 'final-sale'
   - lazy               {Boolean}  lazy-load the image. Default true
 
   Geometry from the Figma (node 1:200):
@@ -35,7 +33,6 @@
   assign swatch_limit = swatch_limit | default: 4
   assign colour_option_name = colour_option_name | default: 'Color'
   assign secondary_source = secondary_source | default: 'type'
-  assign final_sale_tag = final_sale_tag | default: 'final-sale'
   if lazy == nil
     assign lazy = true
   endif
@@ -99,15 +96,14 @@
   endcase
 
   # ── States ───────────────────────────────────────────────────────────────
-  # Tag matching is forgiving about case and spacing, so "Final Sale",
-  # "final-sale" and "FINAL SALE" all count. Liquid's `contains` is exact, and
-  # expecting a merchant to type the developer's spelling of a tag is how this
-  # state silently fails to appear.
-  assign final_needle = final_sale_tag | downcase | replace: ' ', '-'
+  # Shopify has no native "final sale" field, so the product tag is the marker.
+  # Matching is forgiving about case and spacing, so "Final Sale", "final-sale"
+  # and "FINAL SALE" all count — Liquid's `contains` is exact, and expecting a
+  # merchant to type one exact spelling is how this state silently fails.
   assign is_final_sale = false
   for product_tag in product.tags
     assign normalised_tag = product_tag | downcase | replace: ' ', '-'
-    if normalised_tag == final_needle
+    if normalised_tag == 'final-sale'
       assign is_final_sale = true
       break
     endif

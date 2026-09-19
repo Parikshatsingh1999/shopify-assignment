@@ -112,7 +112,6 @@
         "show_quick_add": true,
         "swatch_limit": 4,
         "colour_option_name": "Color",
-        "final_sale_tag": "final-sale",
         "columns_desktop": 6,
         "columns_mobile": "2",
         "image_ratio": "214 / 320",
