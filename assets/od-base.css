@@ -51,7 +51,13 @@
     Each stack falls through to a system face, so the sections stay readable if
     a font file is missing.
   */
-  --od-font-body: var(--font-body-family, 'Helvetica Neue', Helvetica, Arial, sans-serif);
+  /*
+    Helvetica directly, NOT var(--font-body-family). Deferring to the theme font
+    meant the card rendered in whatever the merchant had picked — Assistant on a
+    stock Dawn — where the file specifies Helvetica. The design wins here; a
+    merchant who wants their own face can override this one token.
+  */
+  --od-font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --od-font-display: 'Instrument Serif', 'Times New Roman', Times, serif;
   --od-font-script: 'La Belle Aurore', 'Snell Roundhand', 'Apple Chancery', cursive;
   --od-font-swash: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;

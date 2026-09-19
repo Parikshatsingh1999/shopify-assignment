@@ -361,7 +361,10 @@
 
 .od-card__title-link {
   display: block;
-  color: inherit;
+  /* #000 in the file, and stated rather than inherited: Dawn's own link colour
+     was reaching the title and painting it #121212. */
+  color: #000;
+  letter-spacing: 0;
   text-decoration: none;
   /* One line with an ellipsis, as drawn. A 90-character title must not push
      this card's price out of line with the card beside it. */
@@ -414,14 +417,18 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 1.2;
-  color: var(--od-ink);
+  /* Tracking stated because Dawn sets it further up the tree and it was being
+     inherited into the price; the file has it at 0. */
+  letter-spacing: 0;
+  color: #000;
 }
 
 .od-card__price-was {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.2;
-  color: var(--od-ink);
+  letter-spacing: 0;
+  color: #000;
   text-decoration: line-through;
 }
 
