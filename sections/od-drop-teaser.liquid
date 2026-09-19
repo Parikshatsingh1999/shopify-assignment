@@ -66,7 +66,10 @@
     # The pattern is the panel's own background rather than a layer on top of
     # it: one element instead of two, no stacking order to get wrong, and the
     # url is quoted so a filename with spaces or brackets can't break it.
-    assign pattern_url = ''
+    # Falls back to the bundled line art, so the panel looks designed the moment
+    # the section is added rather than flat brown. It is stroke-only SVG at 2.4KB
+    # — cheaper than any raster and crisp at any size.
+    assign pattern_url = 'od-pattern-bows.svg' | asset_url
     if s.pattern_image != blank
       assign pattern_url = s.pattern_image | image_url: width: 1600
     endif
@@ -357,7 +360,12 @@
       "info": "La Belle Aurore is bundled with the theme. Switch to the theme font to drop it."
     },
     { "type": "richtext", "id": "left_body", "label": "Supporting text" },
-    { "type": "image_picker", "id": "pattern_image", "label": "Background pattern" },
+    {
+      "type": "image_picker",
+      "id": "pattern_image",
+      "label": "Background pattern",
+      "info": "Leave empty to use the bundled bow line art."
+    },
     {
       "type": "select",
       "id": "pattern_fit",
