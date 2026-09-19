@@ -53,8 +53,15 @@
 .od-teaser__panel--left {
   background-color: var(--od-teaser-left-bg, var(--od-brown));
   color: var(--od-teaser-left-ink, #fff);
-  align-items: center;
-  justify-content: center;
+  /*
+    Grid rather than flex so the panel can be split into halves. Two equal rows
+    let the content start exactly on the half-way line, which is what "leave the
+    top for the artwork" needs — flex centring can only balance a block around
+    the middle, it can't anchor its top edge there.
+  */
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  justify-items: center;
   padding: 20px;
   /* Sizes the watermark against the panel rather than the window — see below. */
   container-type: inline-size;
@@ -107,6 +114,22 @@
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
+}
+
+/* Headline and countdown as one block, dropped into the lower row. */
+.od-teaser__panel--content-lower .od-teaser__left-content {
+  grid-row: 2;
+  align-self: start;
+}
+
+.od-teaser__panel--content-middle .od-teaser__left-content {
+  grid-row: 1 / -1;
+  align-self: center;
+}
+
+.od-teaser__panel--content-bottom .od-teaser__left-content {
+  grid-row: 2;
+  align-self: end;
 }
 
 .od-teaser__left-content {
@@ -447,8 +470,16 @@
   }
 
   .od-teaser__panel--left {
+    /* Stacked, the panel is only as tall as its content, so splitting it into
+       halves would just add a gap above the headline. Centre it instead. */
+    grid-template-rows: auto;
     min-height: 380px;
     padding: 32px 20px;
+  }
+
+  .od-teaser__panel--left .od-teaser__left-content {
+    grid-row: auto;
+    align-self: center;
   }
 }
 

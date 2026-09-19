@@ -89,7 +89,7 @@
     endif
   -%}
   <div
-    class="od-teaser__panel od-teaser__panel--left od-teaser__panel--{{ s.pattern_fit }}"
+    class="od-teaser__panel od-teaser__panel--left od-teaser__panel--{{ s.pattern_fit | default: 'cover' }} od-teaser__panel--content-{{ s.content_position | default: 'lower' }}"
     {% if pattern_url != blank %}
       style="background-image: {{ pattern_layers }};"
     {% endif %}
@@ -365,6 +365,17 @@
       "id": "pattern_image",
       "label": "Background pattern",
       "info": "Leave empty to use the bundled bow line art."
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Where the text sits in the panel",
+      "options": [
+        { "value": "lower", "label": "Lower half — leaves the top for the artwork" },
+        { "value": "middle", "label": "Centred" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "lower"
     },
     {
       "type": "select",
