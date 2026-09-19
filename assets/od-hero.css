@@ -47,14 +47,10 @@
 .od-hero__scrim {
   position: absolute;
   inset: 0;
-  /* Gradient rather than a flat wash: keeps the top of the image clean while
-     still buying contrast where the copy sits. */
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, calc(var(--od-hero-scrim, 0.2) * 0.4)) 0%,
-    rgba(0, 0, 0, var(--od-hero-scrim, 0.2)) 60%,
-    rgba(0, 0, 0, calc(var(--od-hero-scrim, 0.2) * 1.15)) 100%
-  );
+  /* A flat wash, as drawn — 5% in the file. The headline is artwork carrying
+     its own contrast, so it needs no gradient underneath it. Merchants who
+     switch to live text can raise the opacity setting. */
+  background: rgba(12, 12, 13, var(--od-hero-scrim, 0.05));
 }
 
 /* Content --------------------------------------------------------------- */
@@ -137,9 +133,15 @@
 }
 
 /* Reviews tab ------------------------------------------------------------
-   Anchored to the right edge and vertically centred, as in the design. It is a
-   real link when the merchant sets a destination and an inert label when they
-   don't, so keyboard users never land on a control that does nothing. */
+   From the file: Inter Semi Bold 16px uppercase, #303030 on #f3f3f3, 4px
+   radius, 6/8 padding, a 5% drop shadow, rotated to read top-to-bottom in a
+   28 x 89 box on the right edge.
+
+   Built with writing-mode rather than a rotate() transform: same reading
+   direction, but the box sizes itself to the text and stays in flow, so the
+   merchant can change the label without the tab clipping. It is a real link
+   when a destination is set and an inert label when it isn't, so keyboard
+   users never land on a control that does nothing. */
 .od-hero__reviews {
   position: absolute;
   z-index: 2;
@@ -149,17 +151,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 18px 9px;
-  /* Square, flush to the edge, as drawn. */
-  border-radius: 0;
-  background: var(--od-paper);
-  color: var(--od-ink);
-  font-family: var(--od-font-body);
-  font-size: 11px;
+  padding: 8px 6px;
+  border-radius: 4px;
+  background: var(--od-reviews-bg, #f3f3f3);
+  color: var(--od-reviews-ink, #303030);
+  font-family: var(--od-font-ui);
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: var(--od-tracking-wider);
+  line-height: 1;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-decoration: none;
+  box-shadow: 0 1px 4px rgba(12, 12, 13, 0.05);
   /* vertical-rl reads top-to-bottom, which is the direction drawn. */
   writing-mode: vertical-rl;
   transition: padding var(--od-duration) var(--od-ease);
@@ -167,7 +170,7 @@
 
 a.od-hero__reviews:hover,
 a.od-hero__reviews:focus-visible {
-  padding-inline: 14px;
+  padding-inline: 10px;
 }
 
 .od-hero__reviews-stars {
