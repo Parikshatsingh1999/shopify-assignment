@@ -35,7 +35,8 @@ real, selectable, translatable text.
 **`snippets/od-product-card.liquid`** — Product card
 Colour swatches over the image that switch the image, the variant and the price; quick add
 to cart without a page reload; and the states from the hidden Figma layers — Clearance,
-Final Sale, the vendor line and the compare-at price.
+the vendor line and the compare-at price. The Final Sale pill is the product's own tags:
+every tag on the product prints on the card exactly as it was typed.
 
 **`sections/od-product-grid.liquid`** — Product grid
 A collection grid that renders the card. Added so the card can be shown on the home page.

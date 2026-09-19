@@ -96,19 +96,6 @@
   endcase
 
   # ── States ───────────────────────────────────────────────────────────────
-  # Shopify has no native "final sale" field, so the product tag is the marker.
-  # Matching is forgiving about case and spacing, so "Final Sale", "final-sale"
-  # and "FINAL SALE" all count — Liquid's `contains` is exact, and expecting a
-  # merchant to type one exact spelling is how this state silently fails.
-  assign is_final_sale = false
-  for product_tag in product.tags
-    assign normalised_tag = product_tag | downcase | replace: ' ', '-'
-    if normalised_tag == 'final-sale'
-      assign is_final_sale = true
-      break
-    endif
-  endfor
-
   assign on_sale = false
   if current.compare_at_price > current.price
     assign on_sale = true
@@ -206,20 +193,34 @@
     </a>
 
     {%- comment -%}
-      ── Final Sale ──
-      A white pill at the image's top-left (8, 8 in the design) with 12px black
-      text. Driven by a merchant-named product tag.
+      ── Badges ──
+      White pills at the image's top-left (8, 8 in the design), 12px black text.
+
+      The design draws this as a hidden "Final Sale" layer, and Shopify has no
+      native field for that state — so the product's own tags drive it. Every
+      tag on the product is printed exactly as the merchant typed it: no tag
+      name is baked into the theme, nothing to configure, and no way for the
+      badge to silently fail because a spelling did not match. Whatever is on
+      the product is what shows on the card.
+
+      Stacked in a flex column so a product carrying several tags, or a tag and
+      a sold-out state, reads as a list rather than painting pills on top of
+      each other.
 
       Clearance is NOT here: in the design it is a line of dark red text inside
       the text block, above the title. It lives in the body below.
     {%- endcomment -%}
-    {%- if is_final_sale -%}
-      <span class="od-card__final-sale">{{ 'od.card.final_sale' | t }}</span>
-    {%- endif -%}
+    {%- if product.tags.size > 0 or product.available == false -%}
+      <div class="od-card__badges">
+        {%- for product_tag in product.tags -%}
+          <span class="od-card__badge">{{ product_tag | escape }}</span>
+        {%- endfor -%}
 
-    {%- unless product.available -%}
-      <span class="od-card__sold-out">{{ 'od.card.sold_out' | t }}</span>
-    {%- endunless -%}
+        {%- unless product.available -%}
+          <span class="od-card__badge od-card__badge--sold-out">{{ 'od.card.sold_out' | t }}</span>
+        {%- endunless -%}
+      </div>
+    {%- endif -%}
 
     {%- comment -%}
       ── Controls row ──

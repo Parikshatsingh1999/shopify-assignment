@@ -79,15 +79,33 @@
   opacity: 0.55;
 }
 
-/* ── Final Sale / Sold out ──────────────────────────────────────────────—
-   White pill, black text, top-left of the image at 8/8. */
+/* ── Badges ─────────────────────────────────────────────────────────────—
+   White pills, black text, top-left of the image at 8/8.
 
-.od-card__final-sale,
-.od-card__sold-out {
+   A column rather than absolutely-positioned singles: the card prints every
+   tag the product carries, so the count is not known at build time and the
+   stack has to grow on its own. It stops 48px short of the bottom so a
+   heavily-tagged product can never run down into the controls row. */
+
+.od-card__badges {
   position: absolute;
   z-index: 2;
   top: 8px;
   left: 8px;
+  right: 8px;
+  bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  /* Decoration — the pills themselves stay clickable targets for nothing, and
+     the image link below must keep receiving the click. */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.od-card__badge {
+  flex: none;
   padding: 6px 12px;
   border-radius: var(--od-radius-pill);
   background: #fff;
@@ -96,14 +114,12 @@
   font-weight: 400;
   line-height: 18px;
   letter-spacing: 0.2637px;
+  /* A long tag truncates instead of wrapping to three lines and swallowing
+     the artwork. */
+  max-width: 100%;
+  overflow: hidden;
   white-space: nowrap;
-  max-width: calc(100% - 16px);
-}
-
-/* A product that is both on final sale and sold out stacks them rather than
-   painting one on top of the other. */
-.od-card__final-sale ~ .od-card__sold-out {
-  top: 42px;
+  text-overflow: ellipsis;
 }
 
 /* ── Controls row ───────────────────────────────────────────────────────—
