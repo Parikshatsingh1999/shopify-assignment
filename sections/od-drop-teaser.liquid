@@ -51,6 +51,7 @@
     --od-teaser-split: {{ s.split_ratio }}%;
     --od-teaser-left-bg: {{ s.left_background_color }};
     --od-teaser-left-ink: {{ s.left_text_color }};
+    --od-teaser-script-ink: {{ s.script_color }};
     --od-teaser-pattern-size: {{ s.pattern_size }}px;
     --od-teaser-pattern-opacity: {{ s.pattern_opacity | divided_by: 100.0 }};
 
@@ -61,20 +62,35 @@
 >
   <div class="od-teaser__panels">
   {%- comment -%} ── Left panel ─────────────────────────────────────────── {%- endcomment -%}
-  <div class="od-teaser__panel od-teaser__panel--left">
-    {%- comment -%}
-      In the file the line art is one composed vector layer (730 x 583) covering
-      the panel, not a repeating motif — so "cover" is the default and tiling is
-      the option, rather than the other way round.
-    {%- endcomment -%}
-    {%- if s.pattern_image != blank -%}
-      <div
-        class="od-teaser__pattern od-teaser__pattern--{{ s.pattern_fit }}"
-        aria-hidden="true"
-        style="background-image: url({{ s.pattern_image | image_url: width: 1400 }});"
-      ></div>
-    {%- endif -%}
+  {%- liquid
+    # The pattern is the panel's own background rather than a layer on top of
+    # it: one element instead of two, no stacking order to get wrong, and the
+    # url is quoted so a filename with spaces or brackets can't break it.
+    assign pattern_url = ''
+    if s.pattern_image != blank
+      assign pattern_url = s.pattern_image | image_url: width: 1600
+    endif
 
+    # "Pattern strength" without an opacity layer: a flat wash of the panel
+    # colour is composited over the image, so 100% shows the art untouched and
+    # lower values sink it into the panel. Opacity on a wrapper would have
+    # faded the panel colour too.
+    assign tint_alpha = 100 | minus: s.pattern_opacity | divided_by: 100.0
+    assign tint = s.left_background_color | color_modify: 'alpha', tint_alpha
+
+    # An empty colour setting would make color_modify return nothing, which
+    # would invalidate the whole background-image and drop the pattern with it.
+    assign pattern_layers = "url('" | append: pattern_url | append: "')"
+    if tint != blank
+      assign pattern_layers = 'linear-gradient(' | append: tint | append: ', ' | append: tint | append: '), ' | append: pattern_layers
+    endif
+  -%}
+  <div
+    class="od-teaser__panel od-teaser__panel--left od-teaser__panel--{{ s.pattern_fit }}"
+    {% if pattern_url != blank %}
+      style="background-image: {{ pattern_layers }};"
+    {% endif %}
+  >
     {%- comment -%}
       ── Watermark letter ──
       The design sets a single huge Pinyon Script glyph at 7% white behind the
@@ -328,6 +344,7 @@
     { "type": "header", "content": "Left panel" },
     { "type": "text", "id": "eyebrow", "label": "Small line above the headline" },
     { "type": "text", "id": "script_headline", "label": "Script headline", "default": "New drop coming soon" },
+    { "type": "color", "id": "script_color", "label": "Script headline colour", "default": "#fffbf8" },
     {
       "type": "select",
       "id": "script_face",
