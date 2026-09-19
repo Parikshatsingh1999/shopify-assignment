@@ -35,6 +35,9 @@ sections/
   od-product-grid.liquid      Test 2 · the grid that renders the card
 snippets/
   od-product-card.liquid      Test 2 · the card itself
+  od-fonts.liquid             @font-face for the bundled faces
+templates/
+  index.json                  composes the four sections — the demo page
 bin/
   check-ranges.py             pre-push validation of range settings (see below)
 assets/
@@ -46,6 +49,9 @@ assets/
   od-product-card.css
   od-product-card.js          swatch switching + <od-quick-add>
   od-grid.css
+  *.woff2                     the four bundled typefaces
+docs/
+  fonts/                      SIL Open Font License text for each family
 locales/
   en.default.json             + an `od.card.*` block (the only Dawn file modified)
 ```
@@ -71,14 +77,17 @@ grid: this repo's grid, Dawn's featured-collection, search results, related prod
 
 ### Colour
 
-Sampled from the Figma and set as the defaults in `od-base.css`:
+Read from the Figma file's node tree and set as the defaults in `od-base.css`:
 
 | Token | Value | Where |
 |---|---|---|
-| `--od-aqua` | `#AAFFF9` | hero CTA fill |
-| `--od-brown` | `#441805` | drop teaser, left panel |
+| `--od-aqua` | `#B3FFF9` | hero CTA fill |
+| `--od-aqua-ink` | `#011F13` | hero CTA label |
+| `--od-brown` | `#421802` | teaser panel, countdown digits, form rules |
+| `--od-brown-soft` | `#75462D` | placeholder text on the cream panel |
 | `--od-cream` | `#FFFBF8` | drop teaser, right panel |
-| `--od-tile` | `#E4DCD9` | countdown digit tiles |
+| `--od-tile` | `rgba(255,255,255,.85)` | countdown digit tiles |
+| `--od-clearance` | `#940202` | the Clearance line on the card |
 
 Each one is also a schema setting on the section that uses it, so these are the defaults
 rather than the only values — a merchant can re-skin a section without a developer.
@@ -107,9 +116,20 @@ cd theme
 shopify theme dev --store 1rzg6i-6z.myshopify.com
 ```
 
-The repo is a complete working theme, so `theme dev` runs it as-is. Then in the theme
-editor, add `Hero`, `Drop teaser`, `Display text` and `Product grid` to a page — each has a
-preset and can be added, removed and reordered independently.
+The repo is a complete working theme, so `theme dev` runs it as-is, and
+`templates/index.json` already composes all four sections in design order — so the home page
+**is** the demo and both tests are on one page with no editor setup.
+
+Each section still carries a preset, so they can be added, removed and reordered
+independently in the theme editor; committing the arrangement just means the page survives
+in version control rather than living in a settings blob only that store has.
+
+To put it on the store itself rather than the local preview:
+
+```bash
+shopify theme push --unpublished --theme "Assignment"   # then check the preview URL
+shopify theme publish --theme "Assignment"
+```
 
 ---
 
@@ -229,8 +249,9 @@ something behind the letters.
 
 The card is **214 × 415 at the 1440 artboard**, which is what six columns with a 16px gap
 gives you at full width — so `columns_desktop: 6` is the default rather than a coincidence.
-Measured off the file, the image is **214 × 316** (`aspect-ratio: 214 / 316`), leaving 99px
-for the text block. Square corners, not rounded.
+From the file, the image is **214 × 320** (`aspect-ratio: 214 / 320`), leaving 95px for the
+text block, which is padded 10px at the sides and top and 16px at the bottom with 8px
+between rows. Square corners, not rounded.
 
 The two controls over the image match the file: the swatches sit in a **white rounded pill**
 over the bottom-left with the overflow marker as its last slot, and quick add is a separate
@@ -325,6 +346,16 @@ page; a section that reflows 40px before the header does looks like a bug.
 | < 750px | hero goes to a **4:5 crop** (16:9 is too letterboxed to hold a headline on a phone — the focal-point setting decides what stays in frame) with copy bottom-aligned; the Reviews tab lies **flat** at the bottom right, because vertical text beside a phone-width headline is a thumb trap; grid at the merchant's mobile column count; swatch and quick-add hit areas grow 8px past their visual size while the design size is kept |
 
 ---
+
+### One deliberate departure from the artboard
+
+The hero is capped at `max-height: 100svh`. On a window wider than about 1500px, holding
+1440 × 810 exactly would make the hero taller than the viewport — the shopper would land on
+a page where nothing but the hero is visible and the CTA sits below the fold. The cap means
+that above roughly 1500px the hero is slightly shorter than the drawn proportion. At and
+below the 1440 design width it matches.
+
+I'd rather flag that than have you find a hero that scrolls.
 
 ## Accessibility
 
