@@ -51,6 +51,8 @@ snippets/
   od-fonts.liquid             @font-face for the bundled faces
 templates/
   index.json                  composes the four sections — the demo page
+  collection.json             collection grid settings (quick add + vendor on)
+.shopifyignore                keeps pushes from reverting merchant configuration
 bin/
   check-ranges.py             pre-push validation of range settings (see below)
 assets/
@@ -62,6 +64,7 @@ assets/
   od-product-card.css
   od-product-card.js          swatch switching + <od-quick-add>
   od-grid.css
+  od-pattern-bows.svg         original line art, the drop teaser's default pattern
   *.woff2                     the four bundled typefaces
 docs/
   fonts/                      SIL Open Font License text for each family
@@ -407,19 +410,42 @@ filled in show an inline hint under `request.design_mode` rather than rendering 
 
 ## Fonts
 
-Every face in these sections is a **`font_picker` setting** — the script headline and labels
-on the drop teaser, and both faces on the display text. That means the font is served from
-Shopify's own font library rather than a hardcoded webfont, so there is no third-party font
-request on the page, the merchant can change it, and nothing is licensed into the repo.
-`od-base.css` carries a system-stack fallback for the script face.
+Read from the file's node tree, not guessed:
 
-*Still to record here:* the exact families. I've matched the shapes from the file — an
-italic script for the drop teaser and the "Best" of the display text, an upright serif for
-"sellers" and the card copy, a geometric sans for the CTA and the Reviews tab — but reading
-a family name off a flattened export isn't reliable, and naming the wrong one is worse than
-naming none. Once I'm in the Figma file I'll list each family, whatever I substituted, and
-why. Where a face can't be licensed for web use the substitution will be the nearest
-equivalent in Shopify's library, chosen on x-height and contrast rather than by name.
+| Face | Where | How it's served |
+|---|---|---|
+| **La Belle Aurore** | script headline, countdown labels (24px) | bundled woff2 |
+| **Pinyon Script** | the swash capital, the watermark letter | bundled woff2 |
+| **Instrument Serif** | display text (300px), the "Sneak peek" caption (72px) | bundled woff2, roman + italic |
+| **Inter** | hero button, Reviews tab, countdown digits, newsletter form | **not bundled** — see Outstanding |
+| **Helvetica** | product card title, secondary line, price | system face |
+| **Roboto Medium** | the vendor line | system / Shopify library |
+
+**Nothing was substituted.** The brief's font clause is "if a font cannot be licensed for
+web use, substitute the closest reasonable alternative" — but the three script and serif
+faces are Google Fonts under the SIL Open Font License, which permits web use. Replacing
+them would have been a downgrade with no reason behind it. They live in `assets/` and are
+declared in `snippets/od-fonts.liquid`, which only the sections that need them render.
+
+Google ships these as TTF; all four files are converted to **woff2** with `fonttools`:
+
+| File | TTF | woff2 |
+|---|---|---|
+| `LaBelleAurore-Regular.woff2` | 52.3K | **23.1K** |
+| `PinyonScript-Regular.woff2` | 145.5K | **56.0K** |
+| `InstrumentSerif-Regular.woff2` | 67.7K | **26.5K** |
+| `InstrumentSerif-Italic.woff2` | 69.2K | **27.2K** |
+
+133KB for all four, and only the sections that use them request them.
+
+Self-hosted rather than linked from `fonts.googleapis.com`: a third-party stylesheet link
+costs a DNS lookup and a fresh connection before any text can paint. Serving from the
+theme's assets keeps it on a connection Shopify already has open. Every `@font-face` uses
+`font-display: swap`, and each stack in `od-base.css` falls through to a system face, so a
+missing file degrades to readable text rather than invisible text.
+
+The SIL Open Font License text for each family is in `docs/fonts/`, since the licence
+requires it to travel with the fonts.
 
 ## Where I pushed back
 
