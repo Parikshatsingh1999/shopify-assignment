@@ -1,31 +1,83 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "od_hero": {
       "type": "od-hero",
       "settings": {
+        "background_image": "shopify://shop_images/75f75bc7f1d0ffb86ffcd889637cde77b8d6f5f6.png",
+        "background_focal_x": 50,
+        "background_focal_y": 50,
+        "overlay_opacity": 20,
         "headline": "Spring Break",
+        "subheadline": "",
         "heading_tag": "h1",
+        "headline_max_width": 400,
+        "text_color": "#ffffff",
+        "text_shadow": false,
         "cta_label": "Shop the collection",
+        "cta_background": "#b3fff9",
+        "cta_text_color": "#011f13",
+        "cta_collection": "",
         "cta_url": "shopify://collections/all",
         "show_reviews_tab": true,
         "reviews_label": "Reviews",
-        "overlay_opacity": 20
+        "reviews_url": "",
+        "reviews_stars": 0,
+        "desktop_height": 810,
+        "mobile_min_height": 520,
+        "horizontal_alignment": "center",
+        "vertical_alignment": "center"
       }
     },
     "od_drop_teaser": {
       "type": "od-drop-teaser",
       "settings": {
-        "script_headline": "New drop coming soon",
         "deadline": "2026-12-01 10:00",
+        "expired_behavior": "message",
+        "expired_message": "The drop is live.",
+        "expired_link_label": "Shop now",
+        "expired_link": "",
         "show_days": true,
-        "show_seconds": false,
+        "show_seconds": true,
         "label_days": "Days",
         "label_hours": "Hours",
         "label_minutes": "Minutes",
-        "card_caption": "Sneak peek\u2026",
+        "label_seconds": "Seconds",
+        "eyebrow": "",
+        "script_headline": "New drop coming soon",
+        "script_face": "design",
+        "left_body": "",
+        "pattern_image": "shopify://shop_images/ChatGPT_Image_Sep_19_2026_11_41_36_AM.png",
+        "pattern_fit": "cover",
+        "watermark_letter": "A",
+        "watermark_opacity": 7,
+        "pattern_size": 160,
+        "pattern_opacity": 100,
+        "left_background_color": "#421802",
+        "left_text_color": "#fffbf8",
+        "tile_background": "#ffffff",
+        "tile_text_color": "#421802",
+        "card_image": "shopify://shop_images/d117e8d14ce13ff5d3d3decae62d376f44b49d55.jpg",
+        "card_caption": "Sneak peek…",
+        "right_background_color": "#fffbf8",
         "signup_heading": "Get notified",
+        "signup_body": "",
+        "email_label": "Email address",
         "signup_button_label": "Notify me",
-        "watermark_letter": "A"
+        "success_message": "You're on the list. We'll email you when it drops.",
+        "error_message": "Enter a valid email address.",
+        "min_panel_height": 420,
+        "panel_gap": 8,
+        "section_padding": 24,
+        "split_ratio": 50
       }
     },
     "od_display_text": {
@@ -34,27 +86,20 @@
         "text_swash": "B",
         "text_script": "est",
         "text_roman": "sellers",
-        "heading_tag": "h2"
-      }
-    },
-    "od_product_grid": {
-      "type": "od-product-grid",
-      "settings": {
-        "collection": "all",
-        "products_to_show": 12,
-        "heading": "Shop the collection",
-        "view_all_label": "View all",
-        "columns_desktop": 6,
-        "show_vendor": true,
-        "show_quick_add": true,
-        "swatch_limit": 4
+        "heading_tag": "h2",
+        "text_size": 21,
+        "letter_spacing": -3,
+        "fill_image": "shopify://shop_images/images.jpg",
+        "surround_style": "light",
+        "surround_color": "#ffffff",
+        "fallback_text_color": "#421802",
+        "vertical_padding": 24
       }
     }
   },
   "order": [
     "od_hero",
     "od_drop_teaser",
-    "od_display_text",
-    "od_product_grid"
+    "od_display_text"
   ]
 }
