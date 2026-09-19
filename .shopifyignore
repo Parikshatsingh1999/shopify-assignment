@@ -1,17 +1,24 @@
 # Files the STORE owns, not the repo.
 #
-# `shopify theme push` overwrites the store with local files. These two hold
-# merchant configuration rather than code, so pushing them undoes whatever was
-# changed in the theme editor — deleted sections reappear, hidden ones come
-# back, theme settings revert.
-#
-# Code moves up (push), configuration moves down (pull / theme dev sync).
-
-# Which sections are on the page, their order, and every section setting.
-templates/index.json
+# `shopify theme push` overwrites the store from local files, so anything here
+# holding merchant configuration would undo theme-editor work on every push.
 
 # Global theme settings: colour schemes, typography, favicon, social links.
+# Never edited from the repo, so it is ignored in both directions.
 config/settings_data.json
 
-# To deliberately send one of these anyway:
-#   shopify theme push --only templates/index.json
+# NOTE: templates/index.json is deliberately NOT ignored.
+#
+# It holds the page's sections and their settings, so pushing it blindly does
+# revert editor work — but .shopifyignore applies to pull and dev as well, and
+# ignoring it would also block `theme dev` from syncing editor changes back
+# down, which is how configuration reaches the repo in the first place.
+#
+# Handled by sequence instead of by exclusion:
+#
+#   shopify theme pull --theme "Assignment" --only templates/index.json
+#   git add templates/index.json && git commit -m "chore: sync page config"
+#   shopify theme push --theme "Assignment"
+#
+# Pull down, commit, then push. `theme dev` does the first step continuously
+# while it is running.
