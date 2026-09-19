@@ -1,0 +1,17 @@
+# Files the STORE owns, not the repo.
+#
+# `shopify theme push` overwrites the store with local files. These two hold
+# merchant configuration rather than code, so pushing them undoes whatever was
+# changed in the theme editor — deleted sections reappear, hidden ones come
+# back, theme settings revert.
+#
+# Code moves up (push), configuration moves down (pull / theme dev sync).
+
+# Which sections are on the page, their order, and every section setting.
+templates/index.json
+
+# Global theme settings: colour schemes, typography, favicon, social links.
+config/settings_data.json
+
+# To deliberately send one of these anyway:
+#   shopify theme push --only templates/index.json
