@@ -16,6 +16,7 @@
         "background_focal_x": 50,
         "background_focal_y": 50,
         "overlay_opacity": 20,
+        "headline_image": "shopify://shop_images/spring-break-lettering.png",
         "headline": "Spring Break",
         "subheadline": "",
         "heading_tag": "h1",
@@ -25,7 +26,7 @@
         "cta_label": "Shop the collection",
         "cta_background": "#b3fff9",
         "cta_text_color": "#011f13",
-        "cta_collection": "",
+        "cta_collection": "frontpage",
         "cta_url": "shopify://collections/all",
         "show_reviews_tab": true,
         "reviews_label": "Reviews",
@@ -46,7 +47,7 @@
         "expired_link_label": "Shop now",
         "expired_link": "",
         "show_days": true,
-        "show_seconds": false,
+        "show_seconds": true,
         "label_days": "Days",
         "label_hours": "Hours",
         "label_minutes": "Minutes",
@@ -66,7 +67,7 @@
         "tile_background": "#ffffff",
         "tile_text_color": "#421802",
         "card_image": "shopify://shop_images/d117e8d14ce13ff5d3d3decae62d376f44b49d55.jpg",
-        "card_caption": "Sneak peek\u2026",
+        "card_caption": "Sneak peek…",
         "right_background_color": "#fffbf8",
         "signup_heading": "Get notified",
         "signup_body": "",
@@ -95,32 +96,11 @@
         "fallback_text_color": "#421802",
         "vertical_padding": 24
       }
-    },
-    "od_product_grid": {
-      "type": "od-product-grid",
-      "settings": {
-        "collection": "all",
-        "products_to_show": 12,
-        "heading": "Shop the collection",
-        "view_all_label": "View all",
-        "secondary_source": "type",
-        "show_vendor": true,
-        "show_quick_add": true,
-        "swatch_limit": 4,
-        "colour_option_name": "Color",
-        "final_sale_tag": "final-sale",
-        "columns_desktop": 6,
-        "columns_mobile": "2",
-        "image_ratio": "214 / 320",
-        "column_gap": 16,
-        "vertical_padding": 48
-      }
     }
   },
   "order": [
     "od_hero",
     "od_drop_teaser",
-    "od_display_text",
-    "od_product_grid"
+    "od_display_text"
   ]
 }
