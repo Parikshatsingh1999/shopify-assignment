@@ -34,15 +34,10 @@
 -%}
 
 <section
-  class="od-section od-hero{% if s.text_shadow %} od-hero--shadowed{% endif %}"
+  class="od-section od-hero"
   style="
-    --od-hero-ratio: 1440 / {{ s.desktop_height }};
-    --od-hero-min-height: {{ s.mobile_min_height }}px;
     --od-hero-scrim: {{ s.overlay_opacity | times: 1.0 | divided_by: 100.0 }};
     --od-hero-text: {{ s.text_color }};
-    --od-hero-align-x: {{ s.horizontal_alignment }};
-    --od-hero-align-y: {{ s.vertical_alignment }};
-    --od-hero-headline-width: {{ s.headline_max_width }}px;
     --od-button-bg: {{ s.cta_background }};
     --od-button-ink: {{ s.cta_text_color }};
   "
@@ -92,7 +87,7 @@
             {{ s.headline_image | image_url: width: 900 }} 900w,
             {{ s.headline_image | image_url: width: 1200 }} 1200w
           "
-          sizes="(min-width: 990px) {{ s.headline_max_width }}px, 80vw"
+          sizes="(min-width: 990px) 400px, 80vw"
           width="{{ s.headline_image.width }}"
           height="{{ s.headline_image.height }}"
           alt=""
@@ -108,9 +103,6 @@
         <{{ heading_tag }} class="od-hero__headline">{{ s.headline }}</{{ heading_tag }}>
       {%- endif -%}
 
-      {%- if s.subheadline != blank -%}
-        <p class="od-hero__subheadline">{{ s.subheadline }}</p>
-      {%- endif -%}
 
       {%- if s.cta_label != blank and cta_url != blank -%}
         <a class="od-button od-hero__cta" href="{{ cta_url }}">
@@ -136,11 +128,6 @@
       {% if reviews_tag == 'a' %}href="{{ reviews_url }}"{% endif %}
     >
       <span class="od-hero__reviews-label">{{ s.reviews_label | escape }}</span>
-      {%- if s.reviews_stars > 0 -%}
-        <span class="od-hero__reviews-stars" aria-hidden="true">
-          {%- for i in (1..s.reviews_stars) -%}★{%- endfor -%}
-        </span>
-      {%- endif -%}
     </{{ reviews_tag }}>
   {%- endif -%}
 </section>
@@ -150,9 +137,17 @@
   "name": "Hero",
   "tag": "section",
   "class": "od-section-wrapper",
-  "disabled_on": { "groups": ["header", "footer"] },
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
   "settings": [
-    { "type": "header", "content": "Background" },
+    {
+      "type": "header",
+      "content": "Background"
+    },
     {
       "type": "image_picker",
       "id": "background_image",
@@ -162,120 +157,133 @@
     {
       "type": "range",
       "id": "background_focal_x",
-      "label": "Focus point — across",
-      "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50,
+      "label": "Focus point \u2014 across",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
       "info": "Move this if the subject gets cropped out on narrow screens."
     },
     {
       "type": "range",
       "id": "background_focal_y",
-      "label": "Focus point — up and down",
-      "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50
+      "label": "Focus point \u2014 up and down",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50
     },
     {
       "type": "range",
       "id": "overlay_opacity",
       "label": "Darken the image behind the text",
-      "min": 0, "max": 80, "step": 5, "unit": "%", "default": 5,
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 5,
       "info": "Raise this if the headline is hard to read."
     },
-
-    { "type": "header", "content": "Headline" },
+    {
+      "type": "header",
+      "content": "Headline"
+    },
     {
       "type": "image_picker",
       "id": "headline_image",
       "label": "Headline artwork",
       "info": "Optional. Use this for the lettering from the design. The headline text below is still used by screen readers and translations."
     },
-    { "type": "text", "id": "headline", "label": "Headline text", "default": "The new drop" },
-    { "type": "text", "id": "subheadline", "label": "Supporting line" },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline text",
+      "default": "The new drop"
+    },
     {
       "type": "select",
       "id": "heading_tag",
       "label": "Headline importance",
       "options": [
-        { "value": "h1", "label": "Main page heading (use once per page)" },
-        { "value": "h2", "label": "Section heading" }
+        {
+          "value": "h1",
+          "label": "Main page heading (use once per page)"
+        },
+        {
+          "value": "h2",
+          "label": "Section heading"
+        }
       ],
       "default": "h1",
       "info": "Only one section on a page should be the main page heading."
     },
     {
-      "type": "range",
-      "id": "headline_max_width",
-      "label": "Headline width",
-      "min": 200, "max": 1200, "step": 20, "unit": "px", "default": 400,
-      "info": "The lettering in the design is 391px wide."
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour",
+      "default": "#ffffff"
     },
-    { "type": "color", "id": "text_color", "label": "Text colour", "default": "#ffffff" },
     {
-      "type": "checkbox",
-      "id": "text_shadow",
-      "label": "Add a soft shadow behind the text",
-      "default": false
+      "type": "header",
+      "content": "Button"
     },
-
-    { "type": "header", "content": "Button" },
-    { "type": "text", "id": "cta_label", "label": "Button label", "default": "Shop the collection" },
-    { "type": "color", "id": "cta_background", "label": "Button colour", "default": "#b3fff9" },
-    { "type": "color", "id": "cta_text_color", "label": "Button text colour", "default": "#011f13" },
-    { "type": "collection", "id": "cta_collection", "label": "Button links to this collection" },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Shop the collection"
+    },
+    {
+      "type": "color",
+      "id": "cta_background",
+      "label": "Button colour",
+      "default": "#b3fff9"
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "Button text colour",
+      "default": "#011f13"
+    },
+    {
+      "type": "collection",
+      "id": "cta_collection",
+      "label": "Button links to this collection"
+    },
     {
       "type": "url",
       "id": "cta_url",
       "label": "Or link somewhere else",
       "info": "Leave empty to use the collection above."
     },
-
-    { "type": "header", "content": "Reviews tab" },
-    { "type": "checkbox", "id": "show_reviews_tab", "label": "Show the Reviews tab", "default": true },
-    { "type": "text", "id": "reviews_label", "label": "Reviews tab text", "default": "Reviews" },
-    { "type": "url", "id": "reviews_url", "label": "Reviews tab links to" },
     {
-      "type": "range",
-      "id": "reviews_stars",
-      "label": "Stars shown on the tab",
-      "min": 0, "max": 5, "step": 1, "default": 0,
-      "info": "Set to 0 to show the text only."
-    },
-
-    { "type": "header", "content": "Layout" },
-    {
-      "type": "range",
-      "id": "desktop_height",
-      "label": "Height at full width",
-      "min": 400, "max": 1000, "step": 10, "unit": "px", "default": 810,
-      "info": "810px matches the design. The hero keeps this shape as the window resizes."
+      "type": "header",
+      "content": "Reviews tab"
     },
     {
-      "type": "range",
-      "id": "mobile_min_height",
-      "label": "Smallest height on mobile",
-      "min": 300, "max": 800, "step": 10, "unit": "px", "default": 520
+      "type": "checkbox",
+      "id": "show_reviews_tab",
+      "label": "Show the Reviews tab",
+      "default": true
     },
     {
-      "type": "select",
-      "id": "horizontal_alignment",
-      "label": "Text position — across",
-      "options": [
-        { "value": "flex-start", "label": "Left" },
-        { "value": "center", "label": "Centre" },
-        { "value": "flex-end", "label": "Right" }
-      ],
-      "default": "center"
+      "type": "text",
+      "id": "reviews_label",
+      "label": "Reviews tab text",
+      "default": "Reviews"
     },
     {
-      "type": "select",
-      "id": "vertical_alignment",
-      "label": "Text position — up and down",
-      "options": [
-        { "value": "flex-start", "label": "Top" },
-        { "value": "center", "label": "Middle" },
-        { "value": "flex-end", "label": "Bottom" }
-      ],
-      "default": "center"
+      "type": "url",
+      "id": "reviews_url",
+      "label": "Reviews tab links to"
     }
   ],
-  "presets": [{ "name": "Hero" }]
+  "presets": [
+    {
+      "name": "Hero"
+    }
+  ]
 }
 {% endschema %}

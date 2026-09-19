@@ -42,22 +42,16 @@
 -%}
 
 <section
-  class="od-section od-teaser od-teaser--script-{{ s.script_face | default: 'design' }}"
+  class="od-section od-teaser"
   id="od-teaser-{{ section.id }}"
   style="
-    --od-teaser-floor: {{ s.min_panel_height }}px;
-    --od-teaser-gap: {{ s.panel_gap }}px;
-    --od-teaser-pad: {{ s.section_padding }}px;
-    --od-teaser-split: {{ s.split_ratio }}%;
     --od-teaser-left-bg: {{ s.left_background_color }};
     --od-teaser-left-ink: {{ s.left_text_color }};
     --od-teaser-script-ink: {{ s.script_color }};
-    --od-teaser-pattern-size: {{ s.pattern_size }}px;
     --od-teaser-pattern-opacity: {{ s.pattern_opacity | divided_by: 100.0 }};
 
     --od-teaser-tile-bg: {{ s.tile_background }};
     --od-teaser-tile-ink: {{ s.tile_text_color }};
-    --od-teaser-right-bg: {{ s.right_background_color }};
   "
 >
   <div class="od-teaser__panels">
@@ -89,25 +83,11 @@
     endif
   -%}
   <div
-    class="od-teaser__panel od-teaser__panel--left od-teaser__panel--{{ s.pattern_fit | default: 'cover' }} od-teaser__panel--content-{{ s.content_position | default: 'lower' }}"
+    class="od-teaser__panel od-teaser__panel--left"
     {% if pattern_url != blank %}
       style="background-image: {{ pattern_layers }};"
     {% endif %}
   >
-    {%- comment -%}
-      ── Watermark letter ──
-      The design sets a single huge Pinyon Script glyph at 7% white behind the
-      content. Because that face is bundled, this is real text in CSS rather
-      than another image to export — it costs no request and stays crisp at any
-      size. Hidden from assistive tech: it is texture, not content.
-    {%- endcomment -%}
-    {%- if s.watermark_letter != blank -%}
-      <span
-        class="od-teaser__watermark"
-        aria-hidden="true"
-        style="--od-watermark-opacity: {{ s.watermark_opacity | divided_by: 100.0 }};"
-      >{{ s.watermark_letter | escape }}</span>
-    {%- endif -%}
 
     <div class="od-teaser__left-content">
       {%- if s.eyebrow != blank -%}
@@ -307,31 +287,67 @@
   "name": "Drop teaser",
   "tag": "section",
   "class": "od-section-wrapper",
-  "disabled_on": { "groups": ["header", "footer"] },
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
   "settings": [
-    { "type": "header", "content": "Countdown" },
+    {
+      "type": "header",
+      "content": "Countdown"
+    },
     {
       "type": "text",
       "id": "deadline",
       "label": "Drop date and time",
       "default": "2026-12-01 10:00",
-      "info": "Format: YYYY-MM-DD HH:MM, in your store's timezone (set under Settings → General)."
+      "info": "Format: YYYY-MM-DD HH:MM, in your store's timezone (set under Settings \u2192 General)."
     },
     {
       "type": "select",
       "id": "expired_behavior",
       "label": "When the countdown ends",
       "options": [
-        { "value": "message", "label": "Replace the timer with a message" },
-        { "value": "zero", "label": "Keep the timer showing all zeros" },
-        { "value": "hide", "label": "Hide this section entirely" }
+        {
+          "value": "message",
+          "label": "Replace the timer with a message"
+        },
+        {
+          "value": "zero",
+          "label": "Keep the timer showing all zeros"
+        },
+        {
+          "value": "hide",
+          "label": "Hide this section entirely"
+        }
       ],
       "default": "message"
     },
-    { "type": "text", "id": "expired_message", "label": "Message when it ends", "default": "The drop is live." },
-    { "type": "text", "id": "expired_link_label", "label": "Link label when it ends", "default": "Shop now" },
-    { "type": "url", "id": "expired_link", "label": "Link when it ends" },
-    { "type": "checkbox", "id": "show_days", "label": "Show days", "default": true },
+    {
+      "type": "text",
+      "id": "expired_message",
+      "label": "Message when it ends",
+      "default": "The drop is live."
+    },
+    {
+      "type": "text",
+      "id": "expired_link_label",
+      "label": "Link label when it ends",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "expired_link",
+      "label": "Link when it ends"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_days",
+      "label": "Show days",
+      "default": true
+    },
     {
       "type": "checkbox",
       "id": "show_seconds",
@@ -339,27 +355,56 @@
       "default": false,
       "info": "The design shows three groups. Turning this on adds a fourth."
     },
-    { "type": "text", "id": "label_days", "label": "Label under days", "default": "Days" },
-    { "type": "text", "id": "label_hours", "label": "Label under hours", "default": "Hours" },
-    { "type": "text", "id": "label_minutes", "label": "Label under minutes", "default": "Minutes" },
-    { "type": "text", "id": "label_seconds", "label": "Label under seconds", "default": "Seconds" },
-
-    { "type": "header", "content": "Left panel" },
-    { "type": "text", "id": "eyebrow", "label": "Small line above the headline" },
-    { "type": "text", "id": "script_headline", "label": "Script headline", "default": "New drop coming soon" },
-    { "type": "color", "id": "script_color", "label": "Script headline colour", "default": "#fffbf8" },
     {
-      "type": "select",
-      "id": "script_face",
-      "label": "Script font",
-      "options": [
-        { "value": "design", "label": "La Belle Aurore (matches the design)" },
-        { "value": "theme", "label": "Use the theme's heading font" }
-      ],
-      "default": "design",
-      "info": "La Belle Aurore is bundled with the theme. Switch to the theme font to drop it."
+      "type": "text",
+      "id": "label_days",
+      "label": "Label under days",
+      "default": "Days"
     },
-    { "type": "richtext", "id": "left_body", "label": "Supporting text" },
+    {
+      "type": "text",
+      "id": "label_hours",
+      "label": "Label under hours",
+      "default": "Hours"
+    },
+    {
+      "type": "text",
+      "id": "label_minutes",
+      "label": "Label under minutes",
+      "default": "Minutes"
+    },
+    {
+      "type": "text",
+      "id": "label_seconds",
+      "label": "Label under seconds",
+      "default": "Seconds"
+    },
+    {
+      "type": "header",
+      "content": "Left panel"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small line above the headline"
+    },
+    {
+      "type": "text",
+      "id": "script_headline",
+      "label": "Script headline",
+      "default": "New drop coming soon"
+    },
+    {
+      "type": "color",
+      "id": "script_color",
+      "label": "Script headline colour",
+      "default": "#fffbf8"
+    },
+    {
+      "type": "richtext",
+      "id": "left_body",
+      "label": "Supporting text"
+    },
     {
       "type": "image_picker",
       "id": "pattern_image",
@@ -367,68 +412,82 @@
       "info": "Leave empty to use the bundled bow line art."
     },
     {
-      "type": "select",
-      "id": "content_position",
-      "label": "Where the text sits in the panel",
-      "options": [
-        { "value": "lower", "label": "Lower half — leaves the top for the artwork" },
-        { "value": "middle", "label": "Centred" },
-        { "value": "bottom", "label": "Bottom" }
-      ],
-      "default": "lower"
-    },
-    {
-      "type": "select",
-      "id": "pattern_fit",
-      "label": "How the pattern fills the panel",
-      "options": [
-        { "value": "cover", "label": "Fill the panel (matches the design)" },
-        { "value": "tile", "label": "Repeat as a tile" }
-      ],
-      "default": "cover"
-    },
-    {
-      "type": "text",
-      "id": "watermark_letter",
-      "label": "Watermark letter",
-      "default": "A",
-      "info": "One large script letter behind the content, as in the design. Leave empty to remove it."
-    },
-    {
-      "type": "range",
-      "id": "watermark_opacity",
-      "label": "Watermark strength",
-      "min": 0, "max": 30, "step": 1, "unit": "%", "default": 7
-    },
-    {
-      "type": "range",
-      "id": "pattern_size",
-      "label": "Pattern tile size",
-      "info": "Only used when the pattern repeats as a tile.",
-      "min": 40, "max": 400, "step": 10, "unit": "px", "default": 160
-    },
-    {
       "type": "range",
       "id": "pattern_opacity",
       "label": "Pattern strength",
-      "min": 5, "max": 100, "step": 5, "unit": "%", "default": 35,
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 35,
       "info": "Low values sink the pattern into the panel colour. Use 100% only for thin line art that won't compete with the text."
     },
-    { "type": "color", "id": "left_background_color", "label": "Left panel colour", "default": "#421802" },
-    { "type": "color", "id": "left_text_color", "label": "Left panel text colour", "default": "#fffbf8" },
-    { "type": "color", "id": "tile_background", "label": "Countdown tile colour", "default": "#ffffff" },
-    { "type": "color", "id": "tile_text_color", "label": "Countdown number colour", "default": "#421802" },
-
-    { "type": "header", "content": "Right panel" },
-    { "type": "image_picker", "id": "card_image", "label": "Image" },
-    { "type": "text", "id": "card_caption", "label": "Caption over the image", "default": "Sneak peek…" },
-    { "type": "color", "id": "right_background_color", "label": "Right panel colour", "default": "#fffbf8" },
-
-    { "type": "header", "content": "Email capture" },
-    { "type": "text", "id": "signup_heading", "label": "Label above the email field", "default": "Get notified" },
-    { "type": "text", "id": "signup_body", "label": "Supporting line" },
-    { "type": "text", "id": "email_label", "label": "Email field placeholder", "default": "Email address" },
-    { "type": "text", "id": "signup_button_label", "label": "Button label", "default": "Notify me" },
+    {
+      "type": "color",
+      "id": "left_background_color",
+      "label": "Left panel colour",
+      "default": "#421802"
+    },
+    {
+      "type": "color",
+      "id": "left_text_color",
+      "label": "Left panel text colour",
+      "default": "#fffbf8"
+    },
+    {
+      "type": "color",
+      "id": "tile_background",
+      "label": "Countdown tile colour",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tile_text_color",
+      "label": "Countdown number colour",
+      "default": "#421802"
+    },
+    {
+      "type": "header",
+      "content": "Right panel"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "card_caption",
+      "label": "Caption over the image",
+      "default": "Sneak peek\u2026"
+    },
+    {
+      "type": "header",
+      "content": "Email capture"
+    },
+    {
+      "type": "text",
+      "id": "signup_heading",
+      "label": "Label above the email field",
+      "default": "Get notified"
+    },
+    {
+      "type": "text",
+      "id": "signup_body",
+      "label": "Supporting line"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email field placeholder",
+      "default": "Email address"
+    },
+    {
+      "type": "text",
+      "id": "signup_button_label",
+      "label": "Button label",
+      "default": "Notify me"
+    },
     {
       "type": "text",
       "id": "success_message",
@@ -440,35 +499,12 @@
       "id": "error_message",
       "label": "Message when the email is invalid",
       "default": "Enter a valid email address."
-    },
-
-    { "type": "header", "content": "Layout" },
-    {
-      "type": "range",
-      "id": "min_panel_height",
-      "label": "Smallest panel height",
-      "min": 300, "max": 800, "step": 10, "unit": "px", "default": 420,
-      "info": "The panels grow with the window and with their content. This is the floor they never go below."
-    },
-    {
-      "type": "range",
-      "id": "panel_gap",
-      "label": "Space between the panels",
-      "min": 0, "max": 48, "step": 2, "unit": "px", "default": 8
-    },
-    {
-      "type": "range",
-      "id": "section_padding",
-      "label": "Space around the panels",
-      "min": 0, "max": 64, "step": 4, "unit": "px", "default": 24
-    },
-    {
-      "type": "range",
-      "id": "split_ratio",
-      "label": "Width of the left panel",
-      "min": 30, "max": 70, "step": 5, "unit": "%", "default": 50
     }
   ],
-  "presets": [{ "name": "Drop teaser" }]
+  "presets": [
+    {
+      "name": "Drop teaser"
+    }
+  ]
 }
 {% endschema %}

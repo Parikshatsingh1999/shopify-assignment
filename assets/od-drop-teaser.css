@@ -23,22 +23,22 @@
 */
 
 .od-teaser {
-  padding: var(--od-teaser-pad, 24px);
+  padding: 24px;
   background: var(--od-paper);
   font-family: var(--od-font-body);
 }
 
 .od-teaser__panels {
   display: grid;
-  grid-template-columns: var(--od-teaser-split, 50%) 1fr;
-  gap: var(--od-teaser-gap, 8px);
+  grid-template-columns: 50% 1fr;
+  gap: 8px;
   /*
     519px at the 1440 artboard, derived from the ratio so it stays exact there
     and scales with the canvas. The merchant's floor stops it collapsing on a
     short window, and max() lets content grow it — a long headline or a wrapped
     form can never overflow.
   */
-  min-height: max(var(--od-teaser-floor, 420px), calc((100vw - var(--od-teaser-pad, 24px) * 2) * 519 / 1392));
+  min-height: max(420px, calc((100vw - 48px) * 519 / 1392));
 }
 
 .od-teaser__panel {
@@ -73,66 +73,17 @@
   settings, so "pattern strength" costs no extra element and never fades the
   panel colour along with the art.
 */
-.od-teaser__panel--cover {
+.od-teaser__panel--left {
+  /* one composed layer covering the panel, as drawn */
   background-repeat: no-repeat, no-repeat;
   background-position: center, center;
   background-size: cover, cover;
 }
 
-.od-teaser__panel--tile {
-  background-repeat: repeat, repeat;
-  background-position: center, top left;
-  background-size: auto, var(--od-teaser-pattern-size, 160px) auto;
-}
-
-/*
-  Watermark letter — real text in the bundled script face rather than an
-  exported image: no extra request, crisp at any size, and the merchant can
-  change the letter. Clipped by the panel's overflow, as in the design, where
-  the glyph runs well past the edges.
-*/
-.od-teaser__watermark {
-  position: absolute;
-  z-index: 0;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--od-font-swash);
-  /* ~1161px against the 692px panel in the design — far taller than the panel,
-     which is what makes it read as texture rather than a letter. */
-  /*
-    1161px against a 692px panel in the file — 168% of the panel's width. A vw
-    value would track the window instead, so on a wide screen the glyph grew
-    until it swamped the panel. cqw measures the panel itself; the vw clamp
-    stays as the fallback where container queries aren't supported.
-  */
-  font-size: clamp(280px, 84vw, 1160px);
-  font-size: 168cqw;
-  line-height: 1;
-  color: currentColor;
-  opacity: var(--od-watermark-opacity, 0.07);
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-}
-
-/* Headline and countdown as one block, dropped into the lower row. */
-.od-teaser__panel--content-lower .od-teaser__left-content {
+.od-teaser__left-content {
+  /* lower half of the panel, leaving the top for the artwork */
   grid-row: 2;
   align-self: start;
-}
-
-.od-teaser__panel--content-middle .od-teaser__left-content {
-  grid-row: 1 / -1;
-  align-self: center;
-}
-
-.od-teaser__panel--content-bottom .od-teaser__left-content {
-  grid-row: 2;
-  align-self: end;
-}
-
-.od-teaser__left-content {
   position: relative;
   z-index: 1;
   display: flex;
@@ -162,12 +113,6 @@
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
-}
-
-/* The merchant can drop the bundled script face for the theme's own heading. */
-.od-teaser--script-theme .od-teaser__script,
-.od-teaser--script-theme .od-countdown__label {
-  font-family: var(--font-heading-family, var(--od-font-display));
 }
 
 .od-teaser__left-body {
@@ -284,7 +229,7 @@
 .od-teaser__panel--right {
   flex-direction: column;
   justify-content: space-between;
-  background: var(--od-teaser-right-bg, var(--od-cream));
+  background: var(--od-cream);
   border: 1px solid rgba(66, 24, 2, 0.1);
   color: var(--od-brown);
   padding: 24px;

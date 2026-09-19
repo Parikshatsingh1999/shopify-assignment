@@ -11,8 +11,8 @@
   display: flex;
   isolation: isolate;
   width: 100%;
-  aspect-ratio: var(--od-hero-ratio, 1440 / 810);
-  min-height: var(--od-hero-min-height, 520px);
+  aspect-ratio: 1440 / 810;
+  min-height: 520px;
   max-height: 100svh;
   overflow: hidden;
   color: var(--od-hero-text, #fff);
@@ -58,8 +58,8 @@
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: var(--od-hero-align-y, center);
-  justify-content: var(--od-hero-align-x, center);
+  align-items: center;
+  justify-content: center;
   width: 100%;
   padding: clamp(32px, 6vw, 88px) var(--od-gutter-desktop);
 }
@@ -68,24 +68,9 @@
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 28px);
-  max-width: min(var(--od-hero-headline-width, 720px), 100%);
+  max-width: min(400px, 100%);
   text-align: center;
   align-items: center;
-}
-
-/* Left/right alignment should carry through to the text itself, not just the box. */
-.od-hero__inner:has(> .od-hero__lockup) {
-  --od-hero-text-align: center;
-}
-
-.od-hero[style*="--od-hero-align-x: flex-start"] .od-hero__lockup {
-  text-align: left;
-  align-items: flex-start;
-}
-
-.od-hero[style*="--od-hero-align-x: flex-end"] .od-hero__lockup {
-  text-align: right;
-  align-items: flex-end;
 }
 
 .od-hero__headline {
@@ -103,21 +88,7 @@
   display: block;
   width: 100%;
   height: auto;
-  max-width: var(--od-hero-headline-width, 720px);
-}
-
-.od-hero__subheadline {
-  margin: 0;
-  font-family: var(--od-font-body);
-  font-size: clamp(14px, 1.2vw, 18px);
-  line-height: 1.5;
-  max-width: 46ch;
-  opacity: 0.92;
-}
-
-.od-hero--shadowed .od-hero__headline,
-.od-hero--shadowed .od-hero__subheadline {
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  max-width: 400px;
 }
 
 .od-hero__cta {
@@ -171,12 +142,6 @@
 a.od-hero__reviews:hover,
 a.od-hero__reviews:focus-visible {
   padding-inline: 10px;
-}
-
-.od-hero__reviews-stars {
-  writing-mode: horizontal-tb;
-  font-size: 10px;
-  letter-spacing: 0;
 }
 
 /* Responsive -------------------------------------------------------------

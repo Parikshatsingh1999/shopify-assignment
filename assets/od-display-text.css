@@ -17,7 +17,7 @@
   place-items: center;
   overflow: hidden;
   /* 24px all round in the design; the section is 1440 × 264. */
-  padding: var(--od-display-padding, 24px);
+  padding: 24px;
   background: var(--od-display-surround, #fff);
 }
 
@@ -30,7 +30,7 @@
   font-weight: 400;
   line-height: 1.2;
   white-space: nowrap;
-  letter-spacing: var(--od-display-tracking, -0.02em);
+  letter-spacing: -0.03em;
   text-align: center;
   /* Mixed case in the design — "Best sellers", not "BEST SELLERS". */
   text-transform: none;

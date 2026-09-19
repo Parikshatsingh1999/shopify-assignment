@@ -33,29 +33,17 @@
 
   assign heading_tag = s.heading_tag | default: 'h2'
 
-  # On the dark surround the knockout needs light text and multiply;
-  # on the light surround it needs dark text and screen. Getting this pair
-  # wrong inverts the effect, so it is derived here rather than left to CSS.
-  if s.surround_style == 'light'
-    assign knockout_blend = 'screen'
-    assign knockout_ink = '#000000'
-  else
-    assign knockout_blend = 'multiply'
-    assign knockout_ink = '#ffffff'
-  endif
 -%}
 
 <section
-  class="od-section od-display od-display--{{ fill_mode }} od-display--{{ s.surround_style }}"
+  class="od-section od-display od-display--{{ fill_mode }}"
   style="
     --od-display-surround: {{ s.surround_color }};
-    --od-display-ink: {{ knockout_ink }};
-    --od-display-blend: {{ knockout_blend }};
+    --od-display-ink: #000000;
+    --od-display-blend: screen;
     --od-display-fallback-ink: {{ s.fallback_text_color }};
     --od-display-size: {{ s.text_size }}vw;
 
-    --od-display-padding: {{ s.vertical_padding }}px;
-    --od-display-tracking: {{ s.letter_spacing | divided_by: 100.0 }}em;
     {%- if s.fill_image != blank -%}
       --od-display-fill: url({{ s.fill_image | image_url: width: 2400 }});
     {%- endif -%}
@@ -132,9 +120,17 @@
   "name": "Display text",
   "tag": "section",
   "class": "od-section-wrapper",
-  "disabled_on": { "groups": ["header", "footer"] },
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
   "settings": [
-    { "type": "header", "content": "Text" },
+    {
+      "type": "header",
+      "content": "Text"
+    },
     {
       "type": "text",
       "id": "text_swash",
@@ -161,9 +157,18 @@
       "id": "heading_tag",
       "label": "Heading importance",
       "options": [
-        { "value": "h1", "label": "Main page heading (use once per page)" },
-        { "value": "h2", "label": "Section heading" },
-        { "value": "p", "label": "Not a heading" }
+        {
+          "value": "h1",
+          "label": "Main page heading (use once per page)"
+        },
+        {
+          "value": "h2",
+          "label": "Section heading"
+        },
+        {
+          "value": "p",
+          "label": "Not a heading"
+        }
       ],
       "default": "h2"
     },
@@ -171,18 +176,17 @@
       "type": "range",
       "id": "text_size",
       "label": "Text size",
-      "min": 6, "max": 22, "step": 0.5, "unit": "vw", "default": 21,
+      "min": 6,
+      "max": 22,
+      "step": 0.5,
+      "unit": "vw",
+      "default": 21,
       "info": "Measured against the window width so the words keep filling the space at any size."
     },
     {
-      "type": "range",
-      "id": "letter_spacing",
-      "label": "Letter spacing",
-      "min": -6, "max": 20, "step": 1, "unit": "%", "default": -3,
-      "info": "Tightens or loosens the gaps between letters."
+      "type": "header",
+      "content": "Fill"
     },
-
-    { "type": "header", "content": "Fill" },
     {
       "type": "image_picker",
       "id": "fill_image",
@@ -195,34 +199,28 @@
       "label": "Fill video",
       "info": "Optional. When set, the video is used instead of the image."
     },
-
-    { "type": "header", "content": "Surround" },
     {
-      "type": "select",
-      "id": "surround_style",
-      "label": "Background around the text",
-      "options": [
-        { "value": "light", "label": "Light" },
-        { "value": "dark", "label": "Dark" }
-      ],
-      "default": "light",
-      "info": "Only affects the video fill. Pick the one that matches the background colour below."
+      "type": "header",
+      "content": "Surround"
     },
-    { "type": "color", "id": "surround_color", "label": "Background colour", "default": "#ffffff" },
+    {
+      "type": "color",
+      "id": "surround_color",
+      "label": "Background colour",
+      "default": "#ffffff"
+    },
     {
       "type": "color",
       "id": "fallback_text_color",
       "label": "Text colour on older browsers",
       "default": "#421802",
       "info": "Used where the see-through effect is not supported, so the text is never invisible."
-    },
-    {
-      "type": "range",
-      "id": "vertical_padding",
-      "label": "Space above and below",
-      "min": 0, "max": 160, "step": 4, "unit": "px", "default": 24
     }
   ],
-  "presets": [{ "name": "Display text" }]
+  "presets": [
+    {
+      "name": "Display text"
+    }
+  ]
 }
 {% endschema %}
