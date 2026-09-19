@@ -29,6 +29,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
@@ -50,7 +51,8 @@
   /* A flat wash, as drawn — 5% in the file. The headline is artwork carrying
      its own contrast, so it needs no gradient underneath it. Merchants who
      switch to live text can raise the opacity setting. */
-  background: rgba(12, 12, 13, var(--od-hero-scrim, 0.05));
+  /* 5% flat, as the file draws it */
+  background: rgba(12, 12, 13, 0.05);
 }
 
 /* Content --------------------------------------------------------------- */
@@ -155,8 +157,8 @@ a.od-hero__reviews:focus-visible {
 
 @media screen and (max-width: 749px) {
   .od-hero {
-    /* A 16:9 crop is too letterboxed to hold a headline on a phone; go taller
-       and let the focal point setting decide what stays in frame. */
+    /* A 16:9 crop is too letterboxed to hold a headline on a phone, so the
+       hero goes taller and crops from the centre. */
     aspect-ratio: 4 / 5;
   }
 

@@ -35,12 +35,7 @@
 
 <section
   class="od-section od-hero"
-  style="
-    --od-hero-scrim: {{ s.overlay_opacity | times: 1.0 | divided_by: 100.0 }};
-    --od-hero-text: {{ s.text_color }};
-    --od-button-bg: {{ s.cta_background }};
-    --od-button-ink: {{ s.cta_text_color }};
-  "
+  style="--od-hero-text: {{ s.text_color }}; --od-button-bg: {{ s.cta_background }}; --od-button-ink: {{ s.cta_text_color }};"
 >
   <div class="od-hero__media">
     {%- if s.background_image != blank -%}
@@ -64,7 +59,6 @@
         class="od-hero__image"
         loading="eager"
         fetchpriority="high"
-        style="object-position: {{ s.background_focal_x }}% {{ s.background_focal_y }}%;"
       >
     {%- else -%}
       <div class="od-hero__image od-hero__image--placeholder">
@@ -72,9 +66,7 @@
       </div>
     {%- endif -%}
 
-    {%- if s.overlay_opacity > 0 -%}
-      <div class="od-hero__scrim" aria-hidden="true"></div>
-    {%- endif -%}
+    <div class="od-hero__scrim" aria-hidden="true"></div>
   </div>
 
   <div class="od-hero__inner">
@@ -153,38 +145,6 @@
       "id": "background_image",
       "label": "Background image",
       "info": "Use a landscape image at least 2880px wide for a sharp full-width hero."
-    },
-    {
-      "type": "range",
-      "id": "background_focal_x",
-      "label": "Focus point \u2014 across",
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "unit": "%",
-      "default": 50,
-      "info": "Move this if the subject gets cropped out on narrow screens."
-    },
-    {
-      "type": "range",
-      "id": "background_focal_y",
-      "label": "Focus point \u2014 up and down",
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "unit": "%",
-      "default": 50
-    },
-    {
-      "type": "range",
-      "id": "overlay_opacity",
-      "label": "Darken the image behind the text",
-      "min": 0,
-      "max": 80,
-      "step": 5,
-      "unit": "%",
-      "default": 5,
-      "info": "Raise this if the headline is hard to read."
     },
     {
       "type": "header",
