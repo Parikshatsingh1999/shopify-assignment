@@ -16,7 +16,8 @@
   - secondary_source   {String}   'type' | 'vendor' | 'first_tag' | 'none'. Default 'type'
   - show_vendor        {Boolean}  the hidden vendor line. Default false
   - show_quick_add     {Boolean}  Default true
-  - final_sale_tag     {String}   tag that flags Final Sale. Default 'final-sale'
+  - final_sale_tag     {String}   tag that flags Final Sale, matched loosely
+                                (case and spaces ignored). Default 'final-sale'
   - lazy               {Boolean}  lazy-load the image. Default true
 
   Geometry from the Figma (node 1:200):
@@ -98,10 +99,19 @@
   endcase
 
   # ── States ───────────────────────────────────────────────────────────────
+  # Tag matching is forgiving about case and spacing, so "Final Sale",
+  # "final-sale" and "FINAL SALE" all count. Liquid's `contains` is exact, and
+  # expecting a merchant to type the developer's spelling of a tag is how this
+  # state silently fails to appear.
+  assign final_needle = final_sale_tag | downcase | replace: ' ', '-'
   assign is_final_sale = false
-  if product.tags contains final_sale_tag
-    assign is_final_sale = true
-  endif
+  for product_tag in product.tags
+    assign normalised_tag = product_tag | downcase | replace: ' ', '-'
+    if normalised_tag == final_needle
+      assign is_final_sale = true
+      break
+    endif
+  endfor
 
   assign on_sale = false
   if current.compare_at_price > current.price
