@@ -31,8 +31,6 @@
     assign fill_mode = 'video'
   endif
 
-  assign heading_tag = s.heading_tag | default: 'h2'
-
 -%}
 
 <section
@@ -97,7 +95,7 @@
     of the translated word is not always the one that should carry the swash.
   {%- endcomment -%}
   <div class="od-display__knockout">
-    <{{ heading_tag }} class="od-display__text">
+    <h2 class="od-display__text">
       {%- if s.text_swash != blank -%}
         <span class="od-display__part od-display__part--swash">{{ s.text_swash | escape }}</span>
       {%- endif -%}
@@ -107,7 +105,7 @@
       {%- if s.text_roman != blank -%}
         <span class="od-display__part od-display__part--roman"> {{ s.text_roman | escape }}</span>
       {%- endif -%}
-    </{{ heading_tag }}>
+    </h2>
   </div>
 
   {%- if fill_mode == 'image' and s.fill_image == blank and request.design_mode -%}
@@ -151,26 +149,6 @@
       "label": "Remaining words",
       "default": "sellers",
       "info": "Set in the upright serif."
-    },
-    {
-      "type": "select",
-      "id": "heading_tag",
-      "label": "Heading importance",
-      "options": [
-        {
-          "value": "h1",
-          "label": "Main page heading (use once per page)"
-        },
-        {
-          "value": "h2",
-          "label": "Section heading"
-        },
-        {
-          "value": "p",
-          "label": "Not a heading"
-        }
-      ],
-      "default": "h2"
     },
     {
       "type": "range",

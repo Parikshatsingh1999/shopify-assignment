@@ -20,8 +20,6 @@
   # control — one setting, one destination, nothing to explain about precedence.
   assign cta_url = s.cta_collection.url
 
-  assign heading_tag = s.heading_tag | default: 'h2'
-
   # Headline image wins when both are set; the text is still rendered for screen
   # readers and translation so the heading never disappears from the document.
   assign has_headline_image = false
@@ -87,9 +85,9 @@
           The headline image is decorative (alt=""); the real heading lives here so
           the page keeps a proper outline and the copy stays translatable.
         {%- endcomment -%}
-        <{{ heading_tag }} class="od-visually-hidden">{{ s.headline | escape }}</{{ heading_tag }}>
+        <h1 class="od-visually-hidden">{{ s.headline | escape }}</h1>
       {%- elsif s.headline != blank -%}
-        <{{ heading_tag }} class="od-hero__headline">{{ s.headline }}</{{ heading_tag }}>
+        <h1 class="od-hero__headline">{{ s.headline }}</h1>
       {%- endif -%}
 
 
@@ -158,23 +156,6 @@
       "id": "headline",
       "label": "Headline text",
       "default": "The new drop"
-    },
-    {
-      "type": "select",
-      "id": "heading_tag",
-      "label": "Headline importance",
-      "options": [
-        {
-          "value": "h1",
-          "label": "Main page heading (use once per page)"
-        },
-        {
-          "value": "h2",
-          "label": "Section heading"
-        }
-      ],
-      "default": "h1",
-      "info": "Only one section on a page should be the main page heading."
     },
     {
       "type": "color",
