@@ -188,6 +188,11 @@ class OdCountdown extends HTMLElement {
     const inEditor = Boolean(window.Shopify && window.Shopify.designMode);
     const behavior = invalid ? 'message' : this.onExpire;
 
+    // The announcer is set for every ended state, not just the message one.
+    // On "zero" a screen reader would otherwise keep reading the last tick —
+    // "0 minutes, 0 seconds until the drop" — for a drop that has landed.
+    if (this.announcerEl) this.announcerEl.textContent = this.expiredEl ? this.expiredEl.textContent.trim() : 'The drop is live.';
+
     if (behavior === 'zero') {
       this.unitEls.forEach((refs) => this.paintTiles(refs.tiles, 0));
       return;
@@ -208,7 +213,6 @@ class OdCountdown extends HTMLElement {
         this.expiredEl.dataset.editorNote = 'This section is hidden for shoppers now that the countdown has ended.';
       }
     }
-    if (this.announcerEl) this.announcerEl.textContent = 'The drop is live.';
   }
 }
 
