@@ -16,12 +16,9 @@
 {%- liquid
   assign s = section.settings
 
-  # The collection picker is the primary control; the free URL field is an escape
-  # hatch for merchants who want to point the button somewhere else entirely.
-  assign cta_url = s.cta_url
-  if cta_url == blank and s.cta_collection != blank
-    assign cta_url = s.cta_collection.url
-  endif
+  # The brief specifies a collection, so the collection picker is the only
+  # control — one setting, one destination, nothing to explain about precedence.
+  assign cta_url = s.cta_collection.url
 
   assign heading_tag = s.heading_tag | default: 'h2'
 
@@ -211,12 +208,6 @@
       "type": "collection",
       "id": "cta_collection",
       "label": "Button links to this collection"
-    },
-    {
-      "type": "url",
-      "id": "cta_url",
-      "label": "Or link somewhere else",
-      "info": "Leave empty to use the collection above."
     },
     {
       "type": "header",
