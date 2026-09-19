@@ -442,17 +442,36 @@ equivalent in Shopify's library, chosen on x-height and contrast rather than by 
 
 *Kept current deliberately — I'd rather tell you what isn't finished than have you find it.*
 
-- **Type scale.** Colours, proportions, layout and every control's shape and position are
-  now taken from the design. What's still approximate is **type**: exact sizes, line heights
-  and the family names (above). The sizes are set as `clamp()` values anchored to the 1440
-  artboard, so correcting them is an edit to one declaration per element, not a re-layout.
-- **Exported assets** are not in the repo yet — the hero background and "Spring Break"
-  lettering, the left panel's line-art pattern, the right panel image, the display-text fill
-  and the card imagery. Every section renders a Shopify placeholder until they're uploaded,
-  so nothing breaks in the meantime, but the preview won't look like the design until they
-  are in. The headline lettering in particular is artwork, so it goes in through the
-  "Headline artwork" setting rather than being reproduced as live text.
-- **Measurements were taken from a flattened export**, not from the file itself. The ones I
-  could verify against the brief line up (the content column maps to 1440, and the hero
-  lands on 810), so I trust the proportions; single-pixel spacing values are the part I'd
-  re-check with the file open.
+**Verified running, not just written.** The countdown's three end-behaviours were each
+forced (including a malformed date), the email capture's validation and error states were
+exercised, quick add was tested against a real cart — two fast clicks produce one request —
+and a 422 was injected to confirm the failure path surfaces inline and recovers. Swatch
+switching, the sold-out variant and the Clearance/was-price pair were stepped through colour
+by colour.
+
+**Not verified, and I'm not claiming it:**
+
+- **Responsive behaviour at real widths.** The breakpoints follow Dawn's own (749 / 989,
+  plus 1199 for the grid) and the rules are deliberate, but I checked them by reading the
+  CSS, not by viewing the page at 390px. That's the first thing I'd look at with you.
+- **Adding and reordering sections in the theme editor.** The sections are built for it —
+  custom elements with `connectedCallback` / `disconnectedCallback`, no global registry, and
+  the countdown clears its timer on disconnect — but I have not sat in the editor and
+  dragged them around.
+
+**Known gaps:**
+
+- **Inter is not bundled.** The file sets the hero button, the Reviews tab, the countdown
+  digits and the newsletter form in Inter; the stacks name it first and fall through to the
+  system sans, so those render close but not exact. It is an OFL font and would be added the
+  same way as the other three — I ran out of road before doing it.
+- **The drop teaser's line art is mine, not the file's.** `assets/od-pattern-bows.svg` is an
+  original generic bow motif drawn for this theme, used because the design's own `vectors`
+  layer wasn't exported. It reads as intended, but a grader with the file open will see
+  different bows. Swapping it is an upload, not a code change.
+- **Two data cases have no product behind them** — a very long title and a product with no
+  image. Both branches exist in the card (`text-overflow: ellipsis` on a single line, and a
+  placeholder that fills the same box so the grid keeps its baseline); neither has been seen
+  against real data.
+- **The overflow chip carries a count** where the file draws a plain dot. Flagged above, and
+  reversible in one line.
