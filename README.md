@@ -22,8 +22,21 @@ The first commit is **clean, unmodified Dawn 16.0.0**. Everything after it is mi
 git diff 56717c0..HEAD --stat
 ```
 
-is an exact inventory of the work. Nothing in Dawn's own files was touched except one
-locale file (see below), which the diff makes obvious.
+is an exact inventory of the work. Exactly two of Dawn's own files are touched, and the
+diff makes both obvious:
+
+| File | Change |
+|---|---|
+| `locales/en.default.json` | adds an `od.card.*` block so the card's badges and labels translate |
+| `sections/main-collection-product-grid.liquid` | renders `od-product-card` in place of Dawn's `card-product` |
+
+The second is the point of Test 2 rather than a compromise. The brief asks for a card
+"written so that it can be dropped into any grid, not hard-wired to one page" — so rather
+than build a second collection page beside Dawn's, the card is dropped into Dawn's own.
+Filtering, sorting, pagination, the responsive grid and the merchant's existing settings all
+stay Dawn's; only the card changes, and the swap is a single `render` call. Dawn's
+`show_vendor` and `quick_add` settings drive the od card, so the merchant keeps the controls
+they already know.
 
 ### Files
 
@@ -53,7 +66,9 @@ assets/
 docs/
   fonts/                      SIL Open Font License text for each family
 locales/
-  en.default.json             + an `od.card.*` block (the only Dawn file modified)
+  en.default.json             + an `od.card.*` block          (Dawn file, modified)
+sections/
+  main-collection-product-grid.liquid   renders od-product-card (Dawn file, modified)
 ```
 
 ### Conventions

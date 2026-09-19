@@ -1,4 +1,16 @@
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
+{%- comment -%} od-product-card replaces Dawn's card in the grid below. {%- endcomment -%}
+{{ 'od-base.css' | asset_url | stylesheet_tag }}
+{{ 'od-product-card.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'od-product-card.js' | asset_url }}" defer="defer"></script>
+{%- liquid
+  # Dawn's quick_add setting is a three-way select ('none' / 'standard' / 'bulk');
+  # the od card's is a boolean, so map rather than pass it straight through.
+  assign od_quick_add = true
+  if section.settings.quick_add == 'none'
+    assign od_quick_add = false
+  endif
+-%}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
 
@@ -156,7 +168,6 @@
                   {% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %}
                 "
               >
-                {% assign skip_card_product_styles = false %}
                 {%- for product in collection.products -%}
                   {% assign lazy_load = false %}
                   {%- if forloop.index > 2 -%}
@@ -169,21 +180,26 @@
                       style="--animation-order: {{ forloop.index }};"
                     {% endif %}
                   >
-                    {% render 'card-product',
-                      card_product: product,
-                      media_aspect_ratio: section.settings.image_ratio,
-                      image_shape: section.settings.image_shape,
-                      show_secondary_image: section.settings.show_secondary_image,
+                    {%- comment -%}
+                      Dawn's own card swapped for od-product-card. Everything
+                      around it — filtering, sorting, pagination, the grid and
+                      its responsive columns — stays Dawn's, which is the point:
+                      the card takes only arguments and reads nothing from
+                      `section`, so dropping it into someone else's grid is a
+                      one-line change rather than a port.
+
+                      Dawn's own show_vendor / image_ratio settings drive it, so
+                      the merchant keeps using the controls they already know.
+                    {%- endcomment -%}
+                    {%- capture od_card_id -%}{{ section.id }}-{{ forloop.index }}{%- endcapture -%}
+                    {% render 'od-product-card',
+                      product: product,
+                      card_id: od_card_id,
                       show_vendor: section.settings.show_vendor,
-                      show_rating: section.settings.show_rating,
-                      lazy_load: lazy_load,
-                      skip_styles: skip_card_product_styles,
-                      quick_add: section.settings.quick_add,
-                      section_id: section.id,
-                      product_view_context: 'collection'
+                      show_quick_add: od_quick_add,
+                      lazy: lazy_load
                     %}
                   </li>
-                  {%- assign skip_card_product_styles = true -%}
                 {%- endfor -%}
               </ul>
 
