@@ -58,6 +58,7 @@
         "script_face": "design",
         "left_body": "",
         "pattern_image": "shopify://shop_images/ChatGPT_Image_Sep_19_2026_11_41_36_AM.png",
+        "content_position": "lower",
         "pattern_fit": "cover",
         "watermark_letter": "A",
         "watermark_opacity": 7,
@@ -97,11 +98,33 @@
         "fallback_text_color": "#421802",
         "vertical_padding": 24
       }
+    },
+    "od_product_grid_QfxKpB": {
+      "type": "od-product-grid",
+      "name": "Product grid",
+      "settings": {
+        "collection": "",
+        "products_to_show": 12,
+        "heading": "Shop the collection",
+        "view_all_label": "View all",
+        "secondary_source": "type",
+        "show_vendor": false,
+        "show_quick_add": true,
+        "swatch_limit": 4,
+        "colour_option_name": "Color",
+        "final_sale_tag": "final-sale",
+        "columns_desktop": 6,
+        "columns_mobile": "2",
+        "image_ratio": "214 / 320",
+        "column_gap": 16,
+        "vertical_padding": 48
+      }
     }
   },
   "order": [
     "od_hero",
     "od_drop_teaser",
-    "od_display_text"
+    "od_display_text",
+    "od_product_grid_QfxKpB"
   ]
 }
